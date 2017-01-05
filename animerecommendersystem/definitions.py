@@ -11,3 +11,4 @@ if not os.path.exists(FILE_DIR):
 
 
 # Files
+LINKS_FILE = os.path.join(FILE_DIR, 'link-list.txt')
