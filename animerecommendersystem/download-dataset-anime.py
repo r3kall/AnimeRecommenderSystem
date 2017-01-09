@@ -2,11 +2,13 @@
 download-dataset-anime.py
 
 This script downloads and creates the dataset consisting of all animes from
-MyAnimeList site, and proceeds in two phases:
+MyAnimeList site, and proceeds in three phases:
 
     1)  Download all the links related to an anime page.
 
-    2)  Scrape and store all the information from each anime page
+    2) Download locally all the HTML pages of the anime.
+
+    3)  Scrape and store all the information from each anime page
         in a JSON record.
 """
 import io
@@ -279,6 +281,8 @@ def create_item_feature_json():
     d = dict()
     html_list = os.listdir(definitions.HTML_DIR)
 
+    print "Generating JSON file..."
+    t0 = time.time()
     for h in html_list:
         # for each html file in the html folder
         scraped = scrape_single_page(definitions.HTML_DIR + '/' + h)  # get raw data
@@ -288,10 +292,14 @@ def create_item_feature_json():
     with open(definitions.JSON_FILE, 'w') as fp:
         j = json.dump(d, fp, sort_keys=True)
 
-    return j is not None
-
+    t1 = time.time() - t0
+    print "JSON file completed in:  %s" % str(t1)
 
 def read_item_feature_json():
+    """
+    Read the json file and return a dictionary representation of the item-feature matrix.
+    :return:
+    """
     with open(definitions.JSON_FILE, 'r') as fp:
         d = json.load(fp)
 
@@ -301,7 +309,7 @@ def read_item_feature_json():
 
 
 if __name__ == '__main__':
-    # print __doc__
+    print __doc__
     # print download_links.__name__ + ":" + download_links.__doc__
     # download_links()  # download all the links
 
@@ -311,5 +319,4 @@ if __name__ == '__main__':
     # n_of_html_pages = len(os.listdir(definitions.HTML_DIR))
     # print "Number of HTML pages:  %d" % n_of_html_pages
 
-    flag = create_item_feature_json()
-    print flag
+    create_item_feature_json()

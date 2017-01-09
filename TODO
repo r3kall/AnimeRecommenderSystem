@@ -1,0 +1,14 @@
+Costruzione Dataset
+1. Lorenzo: file json con lista di anime, file binario con features (genere, tipo, demographic) 1-0 (escludi not aired)
+2. file json utenti, per ogni utente lista di liste di item. Sara: scraping, Rob: file json
+
+Fuzzy clustering
+1. Test lentezza (dim<F, dim>F, dim=F)
+2. clustering della matrice degli animexfeatures (skfuzzy) ---> matrice animexcluster
+
+User preferences
+1. Matrice utentixcluster: per ogni item dell'utente, vado alla matrice animexcluster e prendo la probabilità p; moltiplico p*(rating 
+   dell'anime. Se non ce l'ha 3 se l'anime sta in dropped, 5 se l'anime sta nel resto) e sommo tutti i prodotti, dividendo la somma finale 
+   per la somma dei rating
+2. kNN sulla matrice utentixcluster ---> k utenti più vicini. 
+3. Lista recommendations presa dai vicini (da vedere)
