@@ -7,7 +7,7 @@ url = "https://myanimelist.net/users.php"
 list_of_countries = ["Italy", "USA", "Germany", "Japan", "Brasil", "Russia",
                      "Greece", "Saudi Arabia", "Egypt", "England", "Mexico"]
 
-for country in list_of_countries:
+for country in list_of_countries[8:len(list_of_countries)]:
     print country
     # search by country, age and gender don't care
     country_url = url + "?q=&loc=" + country + "&agelow=0&agehigh=0&g="
@@ -71,7 +71,7 @@ for country in list_of_countries:
         attempts_2 = 0
         while attempts_2 < 10:
             try:
-                user_profile = urllib2.urlopen("https://myanimelist.net" + user)
+                user_profile = urllib2.urlopen("https://myanimelist.net/animelist/" + user[9: len(user)])
                 break
             except urllib2.HTTPError, e:
                 print attempts_2
