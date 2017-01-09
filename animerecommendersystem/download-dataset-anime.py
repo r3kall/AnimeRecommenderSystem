@@ -295,18 +295,6 @@ def create_item_feature_json():
     t1 = time.time() - t0
     print "JSON file completed in:  %s" % str(t1)
 
-def read_item_feature_json():
-    """
-    Read the json file and return a dictionary representation of the item-feature matrix.
-    :return:
-    """
-    with open(definitions.JSON_FILE, 'r') as fp:
-        d = json.load(fp)
-
-    if d is not None:
-        return d
-    return None
-
 
 if __name__ == '__main__':
     print __doc__
