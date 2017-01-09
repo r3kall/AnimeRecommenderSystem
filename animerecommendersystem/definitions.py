@@ -9,7 +9,6 @@ FILE_DIR = os.path.join(ROOT_DIR, 'files')  # This is the directory of stored fi
 HTML_DIR = os.path.join(FILE_DIR, 'htmls')
 
 
-
-
 # Files
 LINKS_FILE = os.path.join(FILE_DIR, 'link-list.txt')
+JSON_FILE = os.path.join(FILE_DIR, 'item-feature.json')

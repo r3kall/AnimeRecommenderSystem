@@ -12,6 +12,7 @@ MyAnimeList site, and proceeds in two phases:
 import io
 import os
 import time
+import json
 import urllib2
 from bs4 import BeautifulSoup
 
@@ -118,7 +119,7 @@ def scrape_single_page(filename):
 
         img_link = soup.find('img', class_='ac', itemprop='image')
         if img_link is None:
-            raise Exception("Image link not found")
+            img_link = None
         else:
             img_link = img_link['src']
 
@@ -126,7 +127,7 @@ def scrape_single_page(filename):
                           href=lambda value: value and value.startswith(
                           'https://myanimelist.net/topanime.php?type'))
         if types is None:
-            raise Exception("Type not found")
+            types = None
         else:
             types = types.text
 
@@ -139,24 +140,22 @@ def scrape_single_page(filename):
         genres = soup.find_all('a',
                                href=lambda value: value and value.startswith(
                                '/anime/genre/'))
-        if len(genres) > 0:
-            gen_list = list()
-            for g in genres:
-                gen_list.append(g.text)
-        else:
-            raise Exception("Genres not found")
+        gen_list = list()
+        for g in genres:
+            gen_list.append(g.text)
 
         rating = soup.find(text='Rating:')
         if rating is None:
             raise Exception("Rating not found")
         else:
             rating = rating.next.strip()
+            rating = rating.split(' ')[0]
 
         score = soup.find('div', class_='fl-l score')
         if score is None:
             raise Exception("Score not found")
         else:
-            score = float(score.text)
+            score = score.text
 
         score_count = soup.find('div', class_='fl-l score')
         if score_count is None:
@@ -177,13 +176,140 @@ def scrape_single_page(filename):
                 'rating': rating, 'score': score}
 
 
+def convert_item_features(item_dictionary):
+    """
+    This function convert item raw information to proper data.
+
+    :param item_dictionary:  a dictionary with raw item data
+    :return: anime id , list of binary feature
+    """
+
+    def type_switch_wrapper(argument):
+        # this get the type and return a binary (exlusive) list
+        switcher = {
+            "TV": [1, 0, 0, 0, 0, 0],
+            "OVA": [0, 1, 0, 0, 0, 0],
+            "Movie": [0, 0, 1, 0, 0, 0],
+            "Special": [0, 0, 0, 1, 0, 0],
+            "ONA": [0, 0, 0, 0, 1, 0],
+            "Music": [0, 0, 0, 0, 0, 1]
+        }
+        return switcher.get(argument, [0, 0, 0, 0, 0, 0])
+
+    def genre_switcher_wrapper(list_of_genres):
+        # this get the list of genres and return a binary list
+        genres = [0] * 45
+        indices = {
+            "Action": 0,
+            "Adventure": 1,
+            "Cars": 2,
+            "Comedy": 3,
+            "Dementia": 4,
+            "Demons": 5,
+            "Mystery": 6,
+            "Drama": 7,
+            "Ecchi": 10,
+            "Fantasy": 11,
+            "Game": 12,
+            "Historical": 13,
+            "Horror": 14,
+            "Kids": 15,
+            "Magic": 16,
+            "Martial Arts": 17,
+            "Mecha": 18,
+            "Music": 19,
+            "Parody": 20,
+            "Samurai": 21,
+            "Romance": 22,
+            "School": 23,
+            "Sci-Fi": 24,
+            "Shoujo": 25,
+            "Shoujo Ai": 26,
+            "Shounen": 27,
+            "Shounen Ai": 28,
+            "Space": 29,
+            "Sports": 30,
+            "Super Power": 31,
+            "Vampire": 32,
+            "Yaoi": 33,
+            "Yuri": 34,
+            "Harem": 35,
+            "Slice of Life": 36,
+            "Supernatural": 37,
+            "Military": 38,
+            "Police": 39,
+            "psychological": 40,
+            "Thriller": 41,
+            "Seinen": 42,
+            "Josei": 43,
+            "Hentai": 44
+        }
+
+        for g in list_of_genres:
+            i = indices.get(g, None)
+            if i is not None:
+                genres[i] = 1
+
+        return genres
+
+    def demo_switcher_wrapper(arguement):
+        switcher = {
+            "G": [1, 0, 0, 0, 0, 0],
+            "PG": [0, 1, 0, 0, 0, 0],
+            "PG-13": [0, 0, 1, 0, 0, 0],
+            "R": [0, 0, 0, 1, 0, 0],
+            "R+": [0, 0, 0, 0, 1, 0],
+            "Rx": [0, 0, 0, 0, 0, 1]
+        }
+        return switcher.get(arguement, [0, 0, 0, 0, 0, 0])
+
+    l1 = type_switch_wrapper(item_dictionary['type'])
+    l2 = genre_switcher_wrapper(item_dictionary['genres'])
+    l3 = demo_switcher_wrapper(item_dictionary['rating'])
+
+    res = l1 + l2 + l3
+
+    return item_dictionary['id'], res
+
+
+def create_item_feature_json():
+    """
+    This function create and save a json representation of the item-feature matrix.
+    """
+    d = dict()
+    html_list = os.listdir(definitions.HTML_DIR)
+
+    for h in html_list:
+        # for each html file in the html folder
+        scraped = scrape_single_page(definitions.HTML_DIR + '/' + h)  # get raw data
+        id, r = convert_item_features(scraped)  # convert in binary data
+        d[id] = r  # add the pair (id, list of binary feature) to the dictionary
+
+    with open(definitions.JSON_FILE, 'w') as fp:
+        j = json.dump(d, fp, sort_keys=True)
+
+    return j is not None
+
+
+def read_item_feature_json():
+    with open(definitions.JSON_FILE, 'r') as fp:
+        d = json.load(fp)
+
+    if d is not None:
+        return d
+    return None
+
+
 if __name__ == '__main__':
     # print __doc__
     # print download_links.__name__ + ":" + download_links.__doc__
     # download_links()  # download all the links
 
-    print download_html_files.__name__ + ":" + download_html_files.__doc__
-    download_html_files()  # download all the HTML pages
+    # print download_html_files.__name__ + ":" + download_html_files.__doc__
+    # download_html_files()  # download all the HTML pages
 
-    n_of_html_pages = len(os.listdir(definitions.HTML_DIR))
-    print "Number of HTML pages:  %d" % n_of_html_pages
+    # n_of_html_pages = len(os.listdir(definitions.HTML_DIR))
+    # print "Number of HTML pages:  %d" % n_of_html_pages
+
+    flag = create_item_feature_json()
+    print flag
