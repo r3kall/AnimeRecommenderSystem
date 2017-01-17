@@ -40,10 +40,10 @@ def add_anime(username, anime_id, rate, curr_state):
 
 
 def scrape_page(filename):
-    '''
+    """
     :param filename: name of file containing a user anime list
     :return: calls add_anime for this user and for each anime in this anime_list
-    '''
+    """
 
     fh = open(PATH + "\\" + filename, "r")
     username = f[:len(f) - 4]
@@ -67,15 +67,12 @@ if __name__ == '__main__':
     # where users' anime-lists are stored
     users_anime_lists = os.listdir(PATH)
 
-    #for f in users_anime_lists:
+    # for f in users_anime_lists:
 
     # per ora ho provato solo un utente perche non ho scaricato gli utenti json
     f = "FellOn.html"
     scrape_page(f)
     print users_json
-
-
-
 
 
 ''' Caso scraping strano: DA BUTTARE SE USIAMO SOLO JSON

@@ -1,5 +1,7 @@
 import urllib2
 import re
+from bs4 import BeautifulSoup
+
 
 # contains recently online users and search bar for users
 url = "https://myanimelist.net/users.php"
@@ -87,7 +89,16 @@ for country in list_of_countries[8:len(list_of_countries)]:
         fh.close()
 
 
-
-
+def check_json_presence(username):
+    """
+    This function is used to select only users with an anime list easy to process.
+    :param username: self-explaining
+    :return: True if the html code of user's anime list has a json in it, or False otherwise.
+    """
+    anime_list = "https://myanimelist.net/animelist/"+username
+    html_page = urllib2.urlopen(anime_list)
+    soup = BeautifulSoup(html_page, 'html.parser')
+    json_table = soup.find_all('table', attrs={'data-items': True})
+    return json_table is not None
 
 
