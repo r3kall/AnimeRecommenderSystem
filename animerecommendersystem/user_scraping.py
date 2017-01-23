@@ -47,7 +47,7 @@ def scrape_page(filename):
     :return: calls add_anime for this user and for each anime in this anime_list
     """
 
-    fh = open(PATH + "\\" + filename, "r")
+    fh = open(definitions.USERS_DIR + "\\" + filename, "r")
     username = f[:len(f) - 4]
     soup = BeautifulSoup(fh, 'html.parser')
 
@@ -67,13 +67,10 @@ def scrape_page(filename):
 
 if __name__ == '__main__':
     # where users' anime-lists are stored
-    users_anime_lists = os.listdir(PATH)
+    users_anime_lists = os.listdir(definitions.USERS_DIR)
 
-    # for f in users_anime_lists:
-
-    # per ora ho provato solo un utente perche non ho scaricato gli utenti json
-    f = "FellOn.html"
-    scrape_page(f)
+    for f in users_anime_lists:
+        scrape_page(f)
     print users_json
 
 
