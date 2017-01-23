@@ -6,7 +6,7 @@ MyAnimeList site, and proceeds in three phases:
 
     1)  Download all the links related to an anime page.
 
-    2) Download locally all the HTML pages of the anime.
+    2)  Download locally all the HTML pages of the anime.
 
     3)  Scrape and store all the information from each anime page
         in a JSON record.
@@ -35,16 +35,18 @@ def download_links():
     """
     print "\nStarting download links..."
     t0 = time.time()
+    # open the link file in write mode
     with io.open(definitions.LINKS_FILE, 'w', encoding='utf-8') as f:
-        fifty_counter = 0
-        while True:
-            time.sleep(0.5)
+        fifty_counter = 0  # url page counter (0 ... 50 ... 100 ... ecc)
+        while True:  # until counter ends and an exception is raised
+            time.sleep(0.5)  # prevents bad intentions
             req = urllib2.Request(BASE_LIST_URL + str(fifty_counter))
             try:
                 response = urllib2.urlopen(req)
                 page = response.read()
                 soup = BeautifulSoup(page, 'html.parser')
 
+                # get all anime page links
                 list_of_links = soup.find_all(
                     "a",
                     class_='hoverinfo_trigger fl-l ml12 mr8'
@@ -74,23 +76,22 @@ def download_html_files():
     """
     print "\nStarting download HTML files..."
     t0 = time.time()
-    counter = 0
+    counter = 0  # only for status monitoring reasons
 
+    # read from the link file
     with io.open(definitions.LINKS_FILE, 'r', encoding='utf-8') as links:
-        # read from the link file
         for url in links:
             counter += 1
             if counter % 1000 == 0:
                 print "Reached link number %d" % counter
-
             # time.sleep(0.5)  # sleep to avoid misunderstanding with server
             url = url.rstrip('\n')  # strip the newline from url
             title_tag = url.split('/')[-2]  # get the title
             try:
                 url = url.encode('ascii', 'ignore')  # encode the url in ASCII
                 response = urllib2.urlopen(url)
-                content = response.read().decode('utf-8')
                 # decode content in unicode (needed)
+                content = response.read().decode('utf-8', 'ignore')
                 with io.open(definitions.HTML_DIR + '/' + title_tag + '.html',
                              'w', encoding='utf-8') as df:
                     df.write(content)  # save the HTML page
@@ -104,12 +105,12 @@ def download_html_files():
 
 def scrape_single_page(filename):
     """
-    This function scrape a single anime page from the given URL.
+    This function scrape a single anime page.
 
-    :param url: URL of the anime page
-    :return: dictionary of attributes
+    :param filename: filename of the anime page
+    :return: dictionary of relevant attributes
     """
-    anime_id = int(filename.split('/')[-1][:-5])
+    anime_id = int(filename.split('/')[-1][:-5])  # get ID from the filename
     with io.open(filename, 'r', encoding='utf-8') as f:
         soup = BeautifulSoup(f, 'html.parser')
 
@@ -187,7 +188,7 @@ def convert_item_features(item_dictionary):
     """
 
     def type_switch_wrapper(argument):
-        # this get the type and return a binary (exlusive) list
+        """this get the type and return a binary (exlusive) list"""
         switcher = {
             "TV": [1, 0, 0, 0, 0, 0],
             "OVA": [0, 1, 0, 0, 0, 0],
@@ -199,7 +200,7 @@ def convert_item_features(item_dictionary):
         return switcher.get(argument, [0, 0, 0, 0, 0, 0])
 
     def genre_switcher_wrapper(list_of_genres):
-        # this get the list of genres and return a binary list
+        """this get the list of genres and return a binary list"""
         genres = [0] * 45
         indices = {
             "Action": 0,
@@ -276,18 +277,21 @@ def convert_item_features(item_dictionary):
 
 def create_item_feature_json():
     """
-    This function create and save a json representation of the item-feature matrix.
+    This function create and save a JSON representation of
+    the item-feature matrix.
     """
-    d = dict()
+    d = dict()  # data dictionary that will be saved in JSON
     html_list = os.listdir(definitions.HTML_DIR)
 
     print "Generating JSON file..."
     t0 = time.time()
+    # for each html file in the html folder
     for h in html_list:
-        # for each html file in the html folder
-        scraped = scrape_single_page(definitions.HTML_DIR + '/' + h)  # get raw data
+        # get raw data
+        scraped = scrape_single_page(definitions.HTML_DIR + '/' + h)
         id, r = convert_item_features(scraped)  # convert in binary data
-        d[id] = r  # add the pair (id, list of binary feature) to the dictionary
+        # add the pair (id, list of binary feature) to the dictionary
+        d[id] = r
 
     with open(definitions.JSON_FILE, 'w') as fp:
         j = json.dump(d, fp, sort_keys=True)

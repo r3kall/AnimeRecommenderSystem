@@ -2,6 +2,8 @@ import os
 from bs4 import BeautifulSoup
 import json
 
+import definitions
+
 """
 TODO: download only those profiles with json format
 Scraping of web pages: pick fields of interest from users' anime lists and build json file of users and preferences
@@ -9,7 +11,7 @@ Scraping of web pages: pick fields of interest from users' anime lists and build
 
 
 # Where users' anime lists are
-PATH = "D:\\users"
+PATH = "D:\\users"  # TODO change with path in definitions file
 
 # Constants
 ANIME_ID_FIELD = 'anime_id'

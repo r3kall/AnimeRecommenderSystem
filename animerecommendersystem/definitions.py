@@ -8,6 +8,7 @@ FILE_DIR = os.path.join(ROOT_DIR, 'files')  # This is the directory of stored fi
 
 HTML_DIR = os.path.join(FILE_DIR, 'htmls')
 
+USERS_DIR = os.path.join(FILE_DIR, 'users')
 
 # Files
 LINKS_FILE = os.path.join(FILE_DIR, 'link-list.txt')
