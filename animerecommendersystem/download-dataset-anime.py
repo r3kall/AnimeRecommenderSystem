@@ -92,8 +92,9 @@ def download_html_files():
                 response = urllib2.urlopen(url)
                 # decode content in unicode (needed)
                 content = response.read().decode('utf-8', 'ignore')
-                with io.open(definitions.HTML_DIR + '/' + title_tag + '.html',
-                             'w', encoding='utf-8') as df:
+                html_file = os.path.join(definitions.HTML_DIR,
+                                         title_tag + '.html')
+                with io.open(html_file, 'w', encoding='utf-8') as df:
                     df.write(content)  # save the HTML page
 
             except urllib2.HTTPError as e:
@@ -288,7 +289,8 @@ def create_item_feature_json():
     # for each html file in the html folder
     for h in html_list:
         # get raw data
-        scraped = scrape_single_page(definitions.HTML_DIR + '/' + h)
+        html_file = os.path.join(definitions.HTML_DIR, h)
+        scraped = scrape_single_page(html_file)
         id, r = convert_item_features(scraped)  # convert in binary data
         # add the pair (id, list of binary feature) to the dictionary
         d[id] = r

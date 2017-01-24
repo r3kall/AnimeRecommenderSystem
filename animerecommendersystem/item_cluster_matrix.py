@@ -10,10 +10,10 @@ representation, using the Fuzzy C Means algorithm.
 """
 
 import numpy as np
-import skfuzzy as fuzz
 import json
 
 import definitions
+from fuzzy_clustering.cmeans import cmeans
 
 
 def read_item_feature_json():
@@ -33,8 +33,8 @@ def read_item_feature_json():
 
 def build_item_feature_matrix():
     """
-    Phase 1: build up the item-feature matrix.
-    :return: numpy matrix (M x C), dictionary of the id indices
+    Build up the item-feature matrix.
+    :return: numpy matrix (M x F), dictionary of the id indices
     """
     d = read_item_feature_json()  # get the dictionary representation
     indices = dict()  # mapping of the ID
@@ -49,25 +49,18 @@ def build_item_feature_matrix():
     return np.array(list_of_list, dtype=np.int8), indices
 
 
-def item_cluster_matrix(item_feature_matrix, num_of_cluster, max_iter):
+def item_cluster_matrix(item_feature_matrix, num_of_cluster,
+                        max_iter=1000, error=0.0001):
     """
     This function perform Fuzzy C Means on the item-feature matrix and
     return the item-cluster matrix.
+
+    :return: numpy matrix (M x C) item-cluster
     """
     data = item_feature_matrix.T
-    seed = np.random.seed(123)
 
-    cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(
-        data, num_of_cluster, 2, error=0.005, maxiter=max_iter, seed=seed
+    cntr, u, u0, d, jm, p, fpc = cmeans(
+        data, num_of_cluster, 2, error=error, maxiter=max_iter
     )
 
     return u.T
-
-
-m, indices = build_item_feature_matrix()
-fm = item_cluster_matrix(m, 100, 1000)
-print fm.shape
-print fm[0, :]
-# print sum(fm[0, :])
-print indices[0]
-
