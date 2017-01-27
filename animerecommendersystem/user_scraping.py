@@ -4,11 +4,6 @@ import json
 
 import definitions
 
-"""
-TODO: download only those profiles with json format
-Scraping of web pages: pick fields of interest from users' anime lists and build json file of users and preferences
-"""
-
 
 # Where users' anime lists are
 PATH = "D:\\users"  # TODO change with path in definitions file
@@ -49,6 +44,7 @@ def scrape_page(filename):
 
     fh = open(definitions.USERS_DIR + "\\" + filename, "r")
     username = f[:len(f) - 4]
+    print username
     soup = BeautifulSoup(fh, 'html.parser')
 
     # we have only json users
@@ -71,7 +67,9 @@ if __name__ == '__main__':
 
     for f in users_anime_lists:
         scrape_page(f)
-    print users_json
+
+    outfile = open(definitions.FILE_DIR+'\\users_json.txt', 'wb')
+    json.dump(users_json, outfile)
 
 
 ''' Caso scraping strano: DA BUTTARE SE USIAMO SOLO JSON

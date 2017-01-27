@@ -11,7 +11,7 @@ import definitions
 def check_json_presence(html_page):
     """
     This function is used to select only users with an anime list easy to process.
-    :param username: self-explaining
+    :param html_page: self-explaining
     :return: True if the html code of user's anime list has a json in it, or False otherwise.
     """
     soup = BeautifulSoup(html_page, 'html.parser')
@@ -101,21 +101,21 @@ for country in list_of_countries:
         while attempts_2 < 10:
             try:
                 user_profile = urllib2.urlopen("https://myanimelist.net/animelist/" + user[9: len(user)])
+                user_profile_html = user_profile.read()
+                # download only users with a json format profile
+                if check_json_presence(user_profile_html):
+                    print file
+                    # open the file for writing
+                    fh = open(file, "w")
+
+                    # write to file
+                    fh.write(user_profile_html)
+                    fh.close()
                 break
             except urllib2.HTTPError, e:
                 print attempts_2
                 attempts_2 += 1
 
-        # download only users with a json format profile
-        if check_json_presence(user_profile):
-            print file
-            user_profile_html = user_profile.read()
 
-            # open the file for writing
-            fh = open(file, "w")
-
-            # write to file
-            fh.write(user_profile_html)
-            fh.close()
 
 
