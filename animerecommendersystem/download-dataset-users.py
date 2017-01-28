@@ -17,7 +17,7 @@ def check_json_presence(html_page):
     """
     soup = BeautifulSoup(html_page, 'html.parser')
     json_table = soup.find_all('table', attrs={'data-items': True})
-    return len(json_table) > 0
+    return json_table is not None
 
 
 if not os.path.exists(definitions.FILE_DIR):
@@ -111,9 +111,7 @@ for country in list_of_countries:
                 user_profile = urllib2.urlopen("https://myanimelist.net/animelist/" + user[9: len(user)])
                 user_profile_html = user_profile.read()
                 # download only users with a json format profile
-                flag = check_json_presence(user_profile_html)
-                print flag
-                if flag:
+                if check_json_presence(user_profile_html):
                     # open the file for writing
                     fh = open(filename, "w")
 

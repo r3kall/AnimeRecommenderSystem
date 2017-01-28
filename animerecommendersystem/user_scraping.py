@@ -40,7 +40,7 @@ def scrape_page(filename):
 
     htmlfile = os.path.join(definitions.USERS_DIR, filename)
     fh = open(htmlfile, "r")
-    username = f[:len(f) - 5]
+    username = f[:len(f) - 4]
     print username
     soup = BeautifulSoup(fh, 'html.parser')
 
