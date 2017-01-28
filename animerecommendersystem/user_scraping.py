@@ -32,15 +32,14 @@ def add_anime(username, anime_id, rate, curr_state):
     users_json[username][anime_id] = anime_record
 
 
-def scrape_page(filename):
+def scrape_page(file_name):
     """
-    :param filename: name of file containing a user anime list
+    :param file_name: name of file containing a user anime list
     :return: calls add_anime for this user and for each anime in this anime_list
     """
-
-    htmlfile = os.path.join(definitions.USERS_DIR, filename)
+    htmlfile = os.path.join(definitions.USERS_DIR, file_name)
     fh = open(htmlfile, "r")
-    username = f[:len(f) - 5]
+    username = file_name[:len(file_name) - 5]
     print username
     soup = BeautifulSoup(fh, 'html.parser')
 
