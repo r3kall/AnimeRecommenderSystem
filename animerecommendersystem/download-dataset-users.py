@@ -7,9 +7,12 @@ import re
 import os
 from bs4 import BeautifulSoup
 import definitions
+import json
+
+MIN_NUMBER_ANIME = 15
 
 
-def check_json_presence(html_page):
+def is_good_user(html_page):
     """
     This function is used to select only users with an anime list easy to process.
     :param html_page: self-explaining
@@ -17,7 +20,19 @@ def check_json_presence(html_page):
     """
     soup = BeautifulSoup(html_page, 'html.parser')
     json_table = soup.find_all('table', attrs={'data-items': True})
-    return len(json_table) > 0
+
+    anime_json = json_table[0]['data-items']
+    return len(json_table) > 0 and has_enough_anime(anime_json)
+
+
+def has_enough_anime(anime_list_json):
+    """
+    This function is used to select only users with at least X anime, so that they can be useful for recommendations.
+    :param anime_list_json: self-explaining
+    :return: True if the html code of user's anime list has enough animes, or False otherwise.
+    """
+    anime_dict = json.loads(anime_list_json)
+    return len(anime_dict) > MIN_NUMBER_ANIME
 
 
 if not os.path.exists(definitions.FILE_DIR):
@@ -111,7 +126,7 @@ for country in list_of_countries:
                 user_profile = urllib2.urlopen("https://myanimelist.net/animelist/" + user[9: len(user)])
                 user_profile_html = user_profile.read()
                 # download only users with a json format profile
-                if check_json_presence(user_profile_html):
+                if is_good_user(user_profile_html):
                     # open the file for writing
                     fh = open(filename, "w")
 
