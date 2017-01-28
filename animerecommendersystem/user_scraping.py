@@ -4,10 +4,6 @@ import json
 
 import definitions
 
-
-# Where users' anime lists are
-PATH = "D:\\users"  # TODO change with path in definitions file
-
 # Constants
 ANIME_ID_FIELD = 'anime_id'
 RATE_FIELD = 'rate'
@@ -42,18 +38,19 @@ def scrape_page(filename):
     :return: calls add_anime for this user and for each anime in this anime_list
     """
 
-    fh = open(definitions.USERS_DIR + "\\" + filename, "r")
+    htmlfile = os.path.join(definitions.USERS_DIR, filename)
+    fh = open(htmlfile, "r")
     username = f[:len(f) - 4]
     print username
     soup = BeautifulSoup(fh, 'html.parser')
 
     # we have only json users
     json_animes = soup.find_all('table', attrs={'data-items': True})
-    print json_animes
+    # print json_animes
 
-    print json_animes[0]['data-items']
+    # print json_animes[0]['data-items']
     x = json.loads(json_animes[0]['data-items'])
-    print x
+    # print x
     for j in x:
         id = j['anime_url'][7:len(j['anime_url'])].split('/')[0]
         rate = j['score']
@@ -68,7 +65,8 @@ if __name__ == '__main__':
     for f in users_anime_lists:
         scrape_page(f)
 
-    outfile = open(definitions.FILE_DIR+'\\users_json.txt', 'wb')
+    filename = os.path.join(definitions.FILE_DIR, 'users.json')
+    outfile = open(filename, 'wb')
     json.dump(users_json, outfile)
 
 

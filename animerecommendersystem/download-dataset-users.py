@@ -4,6 +4,7 @@ Download users' anime lists from myanimelist.net, from 11 countries spread all o
 
 import urllib2
 import re
+import os
 from bs4 import BeautifulSoup
 import definitions
 
@@ -18,6 +19,11 @@ def check_json_presence(html_page):
     json_table = soup.find_all('table', attrs={'data-items': True})
     return json_table is not None
 
+
+if not os.path.exists(definitions.FILE_DIR):
+    os.makedirs(definitions.FILE_DIR)
+if not os.path.exists(definitions.USERS_DIR):
+    os.makedirs(definitions.USERS_DIR)
 
 # contains recently online users and search bar for users
 url = "https://myanimelist.net/users.php"
@@ -65,7 +71,7 @@ for country in list_of_countries:
     while current_users <= users_per_page*num_pages:
         # url is slightly different from previous one
         country_url = url + "?q=&loc=" + country + "&agelow=0&agehigh=0&g=&show="+str(current_users)
-        print country_url
+        # print country_url
 
         # this is to avoid blocking because of http errors, try to connect until 10 attempts
         attempts_1 = 0
@@ -81,22 +87,24 @@ for country in list_of_countries:
 
         # search for urls in the page, corresponding to the form /profile/[name_of_user], these are user profiles
         users_2 = re.findall('''href=["'](/profile/[0-9a-zA-Z|_\-]+)["']''', html_1, re.UNICODE)
-        print users_2
+        # print users_2
 
         # since each url is present twice in the page, i pick each user only once
         for t in range(len(users_2)/2):
             users.append(users_2[t*2])
         current_users += users_per_page
 
-    print users
+    # print users
 
     # write to a local file
     for user in users:
         print user
         # file to be written to
-        file = definitions.USERS_DIR+"\\" + user[9: len(user)] + ".html"
+        filename = os.path.join(definitions.USERS_DIR,
+                                user[9: len(user)] + ".html")
 
-        # this is to avoid blocking because of http errors, try to connect until 10 attempts
+        # this is to avoid blocking because of http errors,
+        # try to connect until 10 attempts
         attempts_2 = 0
         while attempts_2 < 10:
             try:
@@ -104,9 +112,8 @@ for country in list_of_countries:
                 user_profile_html = user_profile.read()
                 # download only users with a json format profile
                 if check_json_presence(user_profile_html):
-                    print file
                     # open the file for writing
-                    fh = open(file, "w")
+                    fh = open(filename, "w")
 
                     # write to file
                     fh.write(user_profile_html)
@@ -115,7 +122,3 @@ for country in list_of_countries:
             except urllib2.HTTPError, e:
                 print attempts_2
                 attempts_2 += 1
-
-
-
-
