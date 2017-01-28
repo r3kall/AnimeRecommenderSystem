@@ -17,7 +17,6 @@ def check_json_presence(html_page):
     """
     soup = BeautifulSoup(html_page, 'html.parser')
     json_table = soup.find_all('table', attrs={'data-items': True})
-    # If json_table is an empty list, then the user's anime list is a custom one, and does not contain the json.
     return len(json_table) > 0
 
 
