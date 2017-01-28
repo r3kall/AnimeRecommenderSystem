@@ -37,16 +37,19 @@ def build_item_feature_matrix():
     :return: numpy matrix (M x F), dictionary of the id indices
     """
     d = read_item_feature_json()  # get the dictionary representation
-    indices = dict()  # mapping of the ID
+
+    pos_to_id = dict()  # mapping of the ID
+    id_to_pos = dict()
     list_of_list = []  # binary lists
     counter = 0
 
     for k, v in d.iteritems():
         list_of_list.append(v)
-        indices[counter] = int(k)  # IMPORTANT
+        id_to_pos[int(k)] = counter
+        pos_to_id[counter] = int(k)
         counter += 1
 
-    return np.array(list_of_list, dtype=np.int8), indices
+    return np.array(list_of_list, dtype=np.int8), pos_to_id, id_to_pos
 
 
 def item_cluster_matrix(item_feature_matrix, num_of_cluster,

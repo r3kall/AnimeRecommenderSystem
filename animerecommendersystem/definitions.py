@@ -13,3 +13,4 @@ USERS_DIR = os.path.join(FILE_DIR, 'users')
 # Files
 LINKS_FILE = os.path.join(FILE_DIR, 'link-list.txt')
 JSON_FILE = os.path.join(FILE_DIR, 'item-feature.json')
+JSON_USER_FILE = os.path.join(FILE_DIR, 'user-item.json')
