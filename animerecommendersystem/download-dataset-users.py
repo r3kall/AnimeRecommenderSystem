@@ -17,7 +17,7 @@ def check_json_presence(html_page):
     """
     soup = BeautifulSoup(html_page, 'html.parser')
     json_table = soup.find_all('table', attrs={'data-items': True})
-    return json_table is not None
+    return len(json_table) > 0
 
 
 if not os.path.exists(definitions.FILE_DIR):
