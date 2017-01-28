@@ -1,14 +1,19 @@
-Costruzione Dataset
-1. Lorenzo: file json con lista di anime, file binario con features (genere, tipo, demographic) 1-0 (escludi not aired)
-2. file json utenti, per ogni utente lista di liste di item. Sara: scraping, Rob: file json
+User-Cluster Matrix
+1. Definire funzione ranking(rate, status)
+   Se status è planned, non la considero.
+   Se rate è maggiore di 0, ritorno rate
+   Se rate è 0 e status = Dropped, ritorno 3
+   altrimenti ritorno 5
+   
+   [Idea]: considerare il voto medio o mediana dell'utente invece del 5 politico
 
-Fuzzy clustering
-1. Test lentezza (dim<F, dim>F, dim=F)
-2. clustering della matrice degli animexfeatures (skfuzzy) ---> matrice animexcluster
 
-User preferences
-1. Matrice utentixcluster: per ogni item dell'utente, vado alla matrice animexcluster e prendo la probabilità p; moltiplico p*(rating 
-   dell'anime. Se non ce l'ha 3 se l'anime sta in dropped, 5 se l'anime sta nel resto) e sommo tutti i prodotti, dividendo la somma finale 
-   per la somma dei rating
-2. kNN sulla matrice utentixcluster ---> k utenti più vicini. 
-3. Lista recommendations presa dai vicini (da vedere)
+K-NearestNeighbours
+1. la funzione 'user_cluster_matrix' ritorna un dizionario con (key: username, value: cluster vector). Per usare sklearn
+bisogna prima farlo diventare una matrice "vera".
+2. Nel risultato bisogna però poi riconsiderare gli username, dovrebbe essere una cosa tipo 
+dizionario con (key: username, value: lista di username)
+
+
+Recommendations
+Dal dizionario/matrice dei vicini, accediamo alle liste dei vicini tramite il dizionario/matrice user-item
