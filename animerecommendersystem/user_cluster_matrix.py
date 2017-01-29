@@ -38,10 +38,19 @@ def read_user_item_json():
 
 
 def ranking(dict_of_attributes):
+    """This function return a value depending on values"""
     rate = dict_of_attributes['rate']
     status = dict_of_attributes['curr_state']
 
-    return max(1, rate)
+    # An item is valid if it is not in Planned status
+    if status != 6:
+        if rate > 0:
+            return rate, True
+        elif status == 4:  # if status = dropped
+            return 3, True
+        else:
+            return 5, True
+    return 0, False
 
 
 def build_user_cluster_matrix(user_item_matrix,
@@ -85,9 +94,10 @@ def build_user_cluster_matrix(user_item_matrix,
             except KeyError:
                 continue
 
-            r = ranking(values)  # value depending on values
-            user_cluster_vector += item_cluster_matrix[pos, :] * r
-            ranksum += r
+            r, valid = ranking(values)  # values depending on values
+            if valid:
+                user_cluster_vector += item_cluster_matrix[pos, :] * r
+                ranksum += r
 
         # weighted vector
         user_cluster_vector /= ranksum
