@@ -99,8 +99,8 @@ def build_user_cluster_matrix(user_item_matrix,
                 user_cluster_vector += item_cluster_matrix[pos, :] * r
                 ranksum += r
 
-        # weighted vector
-        user_cluster_vector /= ranksum
+        # weighted vector, avoid possible Nan values
+        user_cluster_vector = np.nan_to_num(user_cluster_vector / ranksum)
         user_cluster_dict[username] = user_cluster_vector
 
         # build user_cluster_matrix and user_matrix_dict_indices too

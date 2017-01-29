@@ -16,6 +16,7 @@ import os
 import time
 import json
 import urllib2
+import argparse
 from bs4 import BeautifulSoup
 
 import definitions
@@ -305,13 +306,23 @@ def create_item_feature_json():
 
 if __name__ == '__main__':
     print __doc__
-    # print download_links.__name__ + ":" + download_links.__doc__
-    # download_links()  # download all the links
+    parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-l", "--links", action="store_true",
+                       help="download all anime links")
+    group.add_argument("-d", "--download", action="store_true",
+                       help="download all anime pages")
+    group.add_argument("-j", "--json", action="store_true",
+                       help="create the json file")
 
-    # print download_html_files.__name__ + ":" + download_html_files.__doc__
-    # download_html_files()  # download all the HTML pages
+    args = parser.parse_args()
 
-    # n_of_html_pages = len(os.listdir(definitions.HTML_DIR))
-    # print "Number of HTML pages:  %d" % n_of_html_pages
-
-    create_item_feature_json()
+    if args.links:
+        download_links()
+    elif args.download:
+        download_html_files()
+    elif args.json:
+        create_item_feature_json()
+    else:
+        print "Warning: run  'python {} --help'  " \
+              "to visualize help and usage\n".format(str(__file__))
