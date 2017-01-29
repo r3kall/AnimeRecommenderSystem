@@ -20,8 +20,8 @@ def is_good_user(html_page):
     """
     soup = BeautifulSoup(html_page, 'html.parser')
     json_table = soup.find_all('table', attrs={'data-items': True})
-
-    anime_json = json_table[0]['data-items']
+    if len(json_table) > 0:
+        anime_json = json_table[0]['data-items']
     return len(json_table) > 0 and has_enough_anime(anime_json)
 
 

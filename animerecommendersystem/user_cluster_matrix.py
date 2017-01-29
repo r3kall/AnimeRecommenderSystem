@@ -54,7 +54,22 @@ def build_user_cluster_matrix(user_item_matrix,
 
     :return: dictionary (N x C)
     """
-    user_cluster_matrix = dict()  # final dictionary (username-cluster vector)
+    user_cluster_dict = dict()  # final dictionary (username-cluster vector)
+
+    '''
+    This matrix is filled in the order of the users seen, and contains their cluster values vector.
+    It is needed to find the nearest neighbors later on, and kNN requires a matrix and not a dictionary
+    '''
+    user_cluster_matrix = np.empty()
+    # current position to fill in user_cluster_matrix
+    count_position = 0
+
+    '''
+    This dictionary is needed to find the username corresponding to an index in the user_cluster_matrix
+    So: key->[position in the matrix]
+        value->[username of the user whose cluster value are in that position in the matrix]
+    '''
+    user_matrix_dict_indices = dict()
 
     for username, item_list in user_item_matrix.iteritems():
         # initialize an empty vector and zero ranksum
@@ -76,9 +91,15 @@ def build_user_cluster_matrix(user_item_matrix,
 
         # weighted vector
         user_cluster_vector /= ranksum
-        user_cluster_matrix[username] = user_cluster_vector
+        user_cluster_dict[username] = user_cluster_vector
 
-    return user_cluster_matrix
+        # build user_cluster_matrix and user_matrix_dict_indices too
+        user_cluster_matrix[count_position] = user_cluster_vector
+        user_matrix_dict_indices[count_position] = username
+        # go on in the matrix
+        count_position += 1
+
+    return user_cluster_dict, user_cluster_matrix, user_matrix_dict_indices
 
 
 if __name__ == '__main__':
