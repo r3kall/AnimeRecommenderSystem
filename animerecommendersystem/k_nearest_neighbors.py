@@ -17,7 +17,7 @@ def nearest_neighbors(username):
     print indices
 
     nearest_neighbors_list = list()
-    for i in indices:
+    for i in indices[0]:
         nearest_neighbors_list.append(user_matrix_dict_indices[i])
 
     print nearest_neighbors_list

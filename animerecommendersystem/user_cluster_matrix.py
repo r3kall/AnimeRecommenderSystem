@@ -69,7 +69,7 @@ def build_user_cluster_matrix(user_item_matrix,
     This matrix is filled in the order of the users seen, and contains their cluster values vector.
     It is needed to find the nearest neighbors later on, and kNN requires a matrix and not a dictionary
     '''
-    user_cluster_matrix = np.empty()
+    user_cluster_matrix = np.empty(shape=(len(user_item_matrix.keys()), item_cluster_matrix.shape[1]), dtype=float)
     # current position to fill in user_cluster_matrix
     count_position = 0
 

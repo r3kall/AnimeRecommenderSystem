@@ -104,14 +104,15 @@ def download_html_files():
     print "Time to download HTML pages:  %s seconds" % str(t1)
 
 
-def scrape_single_page(filename):
+def scrape_single_page(filename, name):
     """
     This function scrape a single anime page.
 
     :param filename: filename of the anime page
     :return: dictionary of relevant attributes
     """
-    anime_id = int(filename.split('/')[-1][:-5])  # get ID from the filename
+    # anime_id = int(filename.split('/')[-1][:-5])  # get ID from the filename
+    anime_id = int(name.split('.')[0])
     with io.open(filename, 'r', encoding='utf-8') as f:
         soup = BeautifulSoup(f, 'html.parser')
 
@@ -290,7 +291,7 @@ def create_item_feature_json():
     for h in html_list:
         # get raw data
         html_file = os.path.join(definitions.HTML_DIR, h)
-        scraped = scrape_single_page(html_file)
+        scraped = scrape_single_page(html_file, h)
         id, r = convert_item_features(scraped)  # convert in binary data
         # add the pair (id, list of binary feature) to the dictionary
         d[id] = r
