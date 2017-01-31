@@ -24,7 +24,6 @@ def sort_list(view_list):
     rates = sorted(buckets.keys(), reverse=True)
     for rate in rates:
         for anime in buckets[rate]:
-            print anime
             sorted_list.append(anime)
 
     print "### Sorting complete ###"
