@@ -1,9 +1,10 @@
 from sklearn.neighbors import NearestNeighbors
 
-from user_cluster_matrix import build_user_cluster_matrix, read_user_item_json, build_item_feature_matrix, item_cluster_matrix
+from user_cluster_matrix import build_user_cluster_matrix, read_user_item_json
 from item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
+from bucket_sort_anime import sort_list
 
-USER_NAME = "_Legna_"
+USER_NAME = 'borf12349'
 NUM_NEIGHBORS = 3
 
 
@@ -20,8 +21,8 @@ def get_neighbors(user_cluster_dict, user_cluster_matrix, user_matrix_dict_indic
     vector = user_cluster_dict[user_name]
     distances, indices = neigh.kneighbors(vector)
 
-    print distances
-    print indices
+    # print distances
+    # print indices
 
     nearest_neighbors_list = list()
     for i in indices[0]:
@@ -45,16 +46,6 @@ def get_num_recomm(i):
         return 1
 
 
-def sort_list(view_list):
-    """
-    :param view_list:
-    :return: the input list, but sorted in descending order (according to user's rate)
-    """
-    # TODO
-
-    return view_list
-
-
 def get_recomm_from_user(user_item, num_recomm, neigh, anime_list):
     """
     :param user_item: dictionary of anime watched by users
@@ -64,18 +55,18 @@ def get_recomm_from_user(user_item, num_recomm, neigh, anime_list):
     :return: a new list L such that L contains anime_list and (hopefully) other recommendations.
     """
     new_list = anime_list
-    # TODO get neigh's list of series
+    # Get neigh's list of series
     view_list = user_item[neigh]
     # Sort it in descending order
     sorted_list = sort_list(view_list)
     # Start scrolling the list until you find num_recomm animes that are not in anime_list
     num_added = 0
-    for elem in sorted_list:
-        # TODO take an anime
-        # TODO check whether it is contained into anime_list
-        # TODO if so, keep searching
-        # TODO else, add it in new_list
-        num_added += 1
+    for possible_recommendation in sorted_list:
+        # Check whether it is contained into anime_list
+        if possible_recommendation not in anime_list:
+            num_added += 1
+            new_list.append(possible_recommendation)
+
         if num_added == num_recomm:
             return new_list
 
@@ -84,6 +75,10 @@ def get_recomm_from_user(user_item, num_recomm, neigh, anime_list):
 
 
 def get_recomm(user_name):
+    """
+    :param user_name: Name of the user we want to give suggetions to
+    :return: a list of animes that could (possibly) be interesting to him/her
+    """
     # Get the user_cluster_matrix
     user_item = read_user_item_json()
     item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
@@ -107,4 +102,5 @@ def get_recomm(user_name):
 if __name__ == '__main__':
     print "### GET RECOMMENDATIONS ###"
     recommendations = get_recomm(USER_NAME)
+    print "### RECOMMENDATIONS COMPUTED ###"
     print recommendations
