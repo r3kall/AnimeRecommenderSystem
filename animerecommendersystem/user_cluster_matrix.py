@@ -119,7 +119,14 @@ if __name__ == '__main__':
     # test with 10 clusters
 
     print "Start building user-cluster matrix"
-    user_cluster = build_user_cluster_matrix(user_item, item_cluster, id_to_pos)
-    print user_cluster
-    print len(user_item)
-    print len(user_cluster)
+    user_cluster_dict, user_cluster_matrix, user_matrix_dict_indices = build_user_cluster_matrix(user_item, item_cluster, id_to_pos)
+
+    # save user_cluster_dict
+    np.save(definitions.USER_CLUSTER_DICT, user_cluster_dict)
+
+    # save user_cluster_matrix
+    np.save(definitions.USER_CLUSTER_MATRIX, user_cluster_matrix)
+
+    # save user_matrix_dict_indices
+    np.save(definitions.USER_MATRIX_DICT_INDICES, user_matrix_dict_indices)
+

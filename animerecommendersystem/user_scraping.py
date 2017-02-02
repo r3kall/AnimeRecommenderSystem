@@ -64,7 +64,8 @@ if __name__ == '__main__':
     for f in users_anime_lists:
         scrape_page(f)
 
-    filename = os.path.join(definitions.FILE_DIR, definitions.JSON_USER_FILE)
+    #filename = os.path.join(definitions.FILE_DIR, definitions.JSON_USER_FILE)
+    filename = definitions.JSON_USER_FILE
     outfile = open(filename, 'wb')
     json.dump(users_json, outfile)
 

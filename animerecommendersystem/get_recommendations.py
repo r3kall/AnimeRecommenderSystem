@@ -4,6 +4,9 @@ from user_cluster_matrix import build_user_cluster_matrix, read_user_item_json
 from item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
 from bucket_sort_anime import sort_list
 
+import numpy as np
+import definitions
+
 USER_NAME = 'borf12349'
 NUM_NEIGHBORS = 3
 
@@ -79,12 +82,13 @@ def get_recomm(user_name):
     :param user_name: Name of the user we want to give suggetions to
     :return: a list of animes that could (possibly) be interesting to him/her
     """
-    # Get the user_cluster_matrix
+    # read from file computed in user_scraping.py
     user_item = read_user_item_json()
-    item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
-    item_cluster = item_cluster_matrix(item_feature, 10)
 
-    user_cluster_dict, user_cluster_matrix, user_matrix_dict_indices = build_user_cluster_matrix(user_item, item_cluster, id_to_pos)
+    # read from files computed in user_cluster_matrix.py
+    user_cluster_dict = np.load(definitions.USER_CLUSTER_DICT).item()
+    user_cluster_matrix = np.load(definitions.USER_CLUSTER_MATRIX)
+    user_matrix_dict_indices = np.load(definitions.USER_MATRIX_DICT_INDICES).item()
 
     # Invoke kNN on the matrix to get neighbors
     neighbors_list = get_neighbors(user_cluster_dict, user_cluster_matrix, user_matrix_dict_indices, user_name)
@@ -95,6 +99,7 @@ def get_recomm(user_name):
     for neigh in neighbors_list:
         num_recomm = get_num_recomm(i)
         anime_list = get_recomm_from_user(user_item, num_recomm, neigh, anime_list)
+        i += 1
 
     # Return them
     return anime_list
