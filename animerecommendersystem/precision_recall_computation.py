@@ -6,6 +6,13 @@ Where:
 -   number of provided good recommendations is the number of animes that are recommended
     and that have been still viewed by users and have also a good rate.
 -   number of possible good recommendations is the number of animes that have been viewed and have also a good rate.
+
+Precision (also called positive predictive value) is the fraction of retrieved instances that are relevant.
+As for recall, we can only compute an estimation of it, which is:
+    number of provided good recommendations / total number of recommendations
+Where:
+-   number of provided good recommendations was explained above
+-   total number of recommendations is self-explaining.
 """
 
 from get_recommendations import get_recomm
@@ -42,16 +49,20 @@ def get_num_good_animes(user_list):
 
 
 if __name__ == '__main__':
-    print "### RECALL ESTIMATION ###"
+    print "### RECALL AND PRECISION ESTIMATION ###"
     user_item = read_user_item_json()
     usernames = user_item.keys()
     for user in usernames[0:NUM_TESTS]:
         user_list = user_item[user]
         recommendations = get_recomm(user)
-        recall_num = get_num_good_recomms(recommendations, user_list)
-        recall_den = get_num_good_animes(user_list)
-        if recall_den > 0:
-            recall = recall_num/(recall_den+0.0)
+        num_good_recomms = get_num_good_recomms(recommendations, user_list)
+        num_good_animes = get_num_good_animes(user_list)
+
+        if num_good_animes > 0:
+            recall = num_good_recomms/(num_good_animes+0.0)
             print "Recall estimation for user " + user + " is " + str(recall) + "."
         else:
             print "Recall estimation for user " + user + " is 0/0."
+
+        precision = num_good_recomms/(len(recommendations)+0.0)
+        print "Precision estimation for user " + user + " is " + str(precision) + "."
