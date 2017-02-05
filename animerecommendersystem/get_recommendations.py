@@ -1,7 +1,6 @@
 from sklearn.neighbors import NearestNeighbors
 
-from user_cluster_matrix import build_user_cluster_matrix, read_user_item_json
-from item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
+from user_cluster_matrix import read_user_item_json
 from bucket_sort_anime import sort_list
 
 import numpy as np
@@ -55,7 +54,7 @@ def get_num_recomm(i):
 def get_recomm_from_user(user_item, num_recom, neigh, anime_list, user_anime_list):
     """
     :param user_item: dictionary of anime watched by users
-    :param num_recomm: number of recommendations we want to take from this user
+    :param num_recom: number of recommendations we want to take from this user
     :param neigh: current user we want to take recommendations from
     :param anime_list: list of recommendations collected to far (we want to avoid duplicates)
     :return: a new list L such that L contains anime_list and (hopefully) other recommendations.
@@ -96,6 +95,7 @@ def get_recomm(user_name):
 
     # read from files computed in user_cluster_matrix.py
     user_cluster_dict = np.load(definitions.USER_CLUSTER_DICT).item()
+    print "EHY you"
     user_cluster_matrix = np.load(definitions.USER_CLUSTER_MATRIX)
     user_matrix_dict_indices = np.load(definitions.USER_MATRIX_DICT_INDICES).item()
 
