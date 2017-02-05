@@ -7,8 +7,11 @@ from bucket_sort_anime import sort_list
 import numpy as np
 import definitions
 
-USER_NAME = 'borf12349'
-NUM_NEIGHBORS = 3
+USER_NAME = 'Tills'
+NUM_NEIGHBORS = 5
+
+# needed for precision: first number is ALREADYSEEN animes, second is TOTAL animes processed
+ALREADYSEEN_TOTAL = [0, 0]
 
 
 def get_neighbors(user_cluster_dict, user_cluster_matrix, user_matrix_dict_indices, user_name):
@@ -49,7 +52,7 @@ def get_num_recomm(i):
         return 1
 
 
-def get_recomm_from_user(user_item, num_recomm, neigh, anime_list):
+def get_recomm_from_user(user_item, num_recom, neigh, anime_list, user_anime_list):
     """
     :param user_item: dictionary of anime watched by users
     :param num_recomm: number of recommendations we want to take from this user
@@ -64,14 +67,20 @@ def get_recomm_from_user(user_item, num_recomm, neigh, anime_list):
     sorted_list = sort_list(view_list)
     # Start scrolling the list until you find num_recomm animes that are not in anime_list
     num_added = 0
+
     for possible_recommendation in sorted_list:
         # Check whether it is contained into anime_list
-        if possible_recommendation not in anime_list:
+        if possible_recommendation in user_anime_list:
+            ALREADYSEEN_TOTAL[0] += 1
+        if (possible_recommendation not in anime_list) and (possible_recommendation not in user_anime_list):
             num_added += 1
             new_list.append(possible_recommendation)
 
-        if num_added == num_recomm:
+        if num_added == num_recom:
             return new_list
+
+        # needed for precision
+        ALREADYSEEN_TOTAL[1] += 1
 
     # We arrive here only if the neighbor has not enough anime to suggest.
     return new_list
@@ -96,9 +105,11 @@ def get_recomm(user_name):
     # For each neighbor, take some anime
     i = 0
     anime_list = list()
+    user_anime_list = user_item[USER_NAME].keys()
+
     for neigh in neighbors_list:
         num_recomm = get_num_recomm(i)
-        anime_list = get_recomm_from_user(user_item, num_recomm, neigh, anime_list)
+        anime_list = get_recomm_from_user(user_item, num_recomm, neigh, anime_list, user_anime_list)
         i += 1
 
     # Return them
@@ -106,6 +117,12 @@ def get_recomm(user_name):
 
 if __name__ == '__main__':
     print "### GET RECOMMENDATIONS ###"
+
     recommendations = get_recomm(USER_NAME)
+
+    # compute precision
+    precision = float(ALREADYSEEN_TOTAL[0])/float(ALREADYSEEN_TOTAL[1])
+
     print "### RECOMMENDATIONS COMPUTED ###"
     print recommendations
+    print precision
