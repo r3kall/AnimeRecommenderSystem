@@ -24,7 +24,7 @@ def get_neighbors(user_cluster_dict, user_cluster_matrix, user_matrix_dict_indic
     neigh = NearestNeighbors(n_neighbors=NUM_NEIGHBORS)
     neigh.fit(user_cluster_matrix)
     vector = user_cluster_dict[user_name]
-    distances, indices = neigh.kneighbors(vector)
+    distances, indices = neigh.kneighbors(vector.reshape(1, -1))
 
     # print distances
     # print indices
@@ -95,7 +95,6 @@ def get_recomm(user_name):
 
     # read from files computed in user_cluster_matrix.py
     user_cluster_dict = np.load(definitions.USER_CLUSTER_DICT).item()
-    print "EHY you"
     user_cluster_matrix = np.load(definitions.USER_CLUSTER_MATRIX)
     user_matrix_dict_indices = np.load(definitions.USER_MATRIX_DICT_INDICES).item()
 
