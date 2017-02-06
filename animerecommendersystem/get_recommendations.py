@@ -9,16 +9,18 @@ import definitions
 NUM_NEIGHBORS = 5
 
 
-def get_neighbors(user_cluster_dict, user_cluster_matrix, user_matrix_dict_indices, user_name):
+def get_neighbors(user_name, user_cluster_dict,
+                             user_cluster_matrix,
+                             user_cluster_indices):
     """
-    :param user_cluster_dict:
-    :param user_cluster_matrix:
-    :param user_matrix_dict_indices:
     :param user_name:
+    :param user_cluster_matrix:
+    :param user_cluster_indices:
     :return:
     """
     neigh = NearestNeighbors(n_neighbors=NUM_NEIGHBORS)
     neigh.fit(user_cluster_matrix)
+
     vector = user_cluster_dict[user_name]
     distances, indices = neigh.kneighbors(vector.reshape(1, -1))
 
@@ -26,8 +28,8 @@ def get_neighbors(user_cluster_dict, user_cluster_matrix, user_matrix_dict_indic
     # print indices
 
     nearest_neighbors_list = list()
-    for i in indices[0]:
-        nearest_neighbors_list.append(user_matrix_dict_indices[i])
+    for i in indices[0][1:]:
+        nearest_neighbors_list.append(user_cluster_indices[i])
 
     return nearest_neighbors_list
 
@@ -47,7 +49,7 @@ def get_num_recomm(i):
         return 1
 
 
-def get_recomm_from_user(user_item, num_recom, neigh, anime_list, user_anime_list):
+def get_recomm_from_user(k, neighbor_list, recom_list, user_anime_list):
     """
     :param user_item: dictionary of anime watched by users
     :param num_recom: number of recommendations we want to take from this user
@@ -55,78 +57,74 @@ def get_recomm_from_user(user_item, num_recom, neigh, anime_list, user_anime_lis
     :param anime_list: list of recommendations collected to far (we want to avoid duplicates)
     :return: a new list L such that L contains anime_list and (hopefully) other recommendations.
     """
-
-    new_list = anime_list
-    # Get neigh's list of series
-    view_list = user_item[neigh]
+    new_list = recom_list
     # Sort it in descending order
-    sorted_list = sort_list(view_list)
-    # Start scrolling the list until you find num_recomm animes that are not in anime_list
-    num_added = 0
+    neighbor_sorted_list = sort_list(neighbor_list)
 
-    for possible_recommendation in sorted_list:
-        # possible_recommendation = int(possible_recommendation)
+    for possible_recommendation in neighbor_sorted_list:
         # Check whether it is contained into anime_list
-        if (possible_recommendation not in anime_list) and (possible_recommendation not in user_anime_list):
-            num_added += 1
+        if (possible_recommendation not in recom_list) and \
+                (possible_recommendation not in user_anime_list):
+            k -= 1
             new_list.append(possible_recommendation)
 
-        if num_added == num_recom:
-            return new_list
+        if k == 0:
+            return new_list, k
 
     # We arrive here only if the neighbor has not enough anime to suggest.
-    return new_list
+    return new_list, k
 
 
-def get_recomm(user_name, exlude=True):
+def get_recomm(user_name, user_item_matrix, k=10, exclude=True):
     """
     :param user_name: Name of the user we want to give suggetions to
+    :param user_item_matrix: read from file computed in user_scraping.py
     :param exlude: if True, exlude all anime seen by the user, otherwise pass an empty list.
     :return: a list of animes that could (possibly) be interesting to him/her
     """
-    # read from file computed in user_scraping.py
-    user_item = read_user_item_json()
-
     # read from files computed in user_cluster_matrix.py
     user_cluster_dict = np.load(definitions.USER_CLUSTER_DICT).item()
     user_cluster_matrix = np.load(definitions.USER_CLUSTER_MATRIX)
-    user_matrix_dict_indices = np.load(definitions.USER_MATRIX_DICT_INDICES).item()
+    user_cluster_indices = np.load(definitions.USER_CLUSTER_INDICES).item()
 
     # Invoke kNN on the matrix to get neighbors
-    neighbors_list = get_neighbors(user_cluster_dict, user_cluster_matrix, user_matrix_dict_indices, user_name)
+    neighbors_list = get_neighbors(user_name, user_cluster_dict,
+                                              user_cluster_matrix,
+                                              user_cluster_indices)
 
-    # For each neighbor, take some anime
-    i = 0
-    anime_list = list()
-    if exlude:
-        user_anime_list = user_item[user_name].keys()
+    if exclude:
+        user_anime_list = user_item_matrix[user_name].keys()
     else:
         user_anime_list = list()
 
+    # For each neighbor, take some anime
+    recom_list = list()
     # TODO cycle on recomm tentatives --> 2 cases
     for neigh in neighbors_list:
-        num_recomm = get_num_recomm(i)
-        anime_list = get_recomm_from_user(user_item, num_recomm, neigh, anime_list, user_anime_list)
-        i += 1
+        neighbor_list = user_item_matrix[neigh]
+        recom_list, k = get_recomm_from_user(k, neighbor_list,
+                                             recom_list, user_anime_list)
+        if k == 0:
+            break
 
     # Return them
-    return anime_list
+    return recom_list
 
 if __name__ == '__main__':
-    print '** get_recommendations.py **'
     user_item = read_user_item_json()
-    usernames = user_item.keys()  # list of unicode string that represent user names (id of users)
+    usernames = user_item.keys()
 
-    for user in usernames[0:100]:
-        print user
+    for user in usernames[0:1]:
         user_list = user_item[user]
         readable_user_list = user_list.keys()
-        recomm = get_recomm(user, exlude=True)
+        recomm = get_recomm(user, user_item, exclude=True)
 
-        print '=============================\n'
-        inter = []
-        for e in recomm:
-            if e in readable_user_list:
-                inter.append(e)
-        print 'Intersection'
-        print inter
+    print '\n** recommendations **'
+    print recomm
+
+    print '\n** intersection with user list **'
+    it = []
+    for e in recomm:
+        if e in readable_user_list:
+            it.append(e)
+    print it
