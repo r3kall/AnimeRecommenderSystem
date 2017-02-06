@@ -6,7 +6,6 @@ from bucket_sort_anime import sort_list
 import numpy as np
 import definitions
 
-USER_NAME = 'Tills'
 NUM_NEIGHBORS = 5
 
 
@@ -56,6 +55,7 @@ def get_recomm_from_user(user_item, num_recom, neigh, anime_list, user_anime_lis
     :param anime_list: list of recommendations collected to far (we want to avoid duplicates)
     :return: a new list L such that L contains anime_list and (hopefully) other recommendations.
     """
+
     new_list = anime_list
     # Get neigh's list of series
     view_list = user_item[neigh]
@@ -65,6 +65,7 @@ def get_recomm_from_user(user_item, num_recom, neigh, anime_list, user_anime_lis
     num_added = 0
 
     for possible_recommendation in sorted_list:
+        # possible_recommendation = int(possible_recommendation)
         # Check whether it is contained into anime_list
         if (possible_recommendation not in anime_list) and (possible_recommendation not in user_anime_list):
             num_added += 1
@@ -98,7 +99,7 @@ def get_recomm(user_name, exlude=True):
     i = 0
     anime_list = list()
     if exlude:
-        user_anime_list = user_item[USER_NAME].keys()
+        user_anime_list = user_item[user_name].keys()
     else:
         user_anime_list = list()
 
@@ -112,9 +113,20 @@ def get_recomm(user_name, exlude=True):
     return anime_list
 
 if __name__ == '__main__':
-    print "### GET RECOMMENDATIONS ###"
+    print '** get_recommendations.py **'
+    user_item = read_user_item_json()
+    usernames = user_item.keys()  # list of unicode string that represent user names (id of users)
 
-    recommendations = get_recomm(USER_NAME)
+    for user in usernames[0:100]:
+        print user
+        user_list = user_item[user]
+        readable_user_list = user_list.keys()
+        recomm = get_recomm(user, exlude=True)
 
-    print "### RECOMMENDATIONS COMPUTED ###"
-    print recommendations
+        print '=============================\n'
+        inter = []
+        for e in recomm:
+            if e in readable_user_list:
+                inter.append(e)
+        print 'Intersection'
+        print inter

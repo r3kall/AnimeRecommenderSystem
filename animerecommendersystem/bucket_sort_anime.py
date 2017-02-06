@@ -26,7 +26,7 @@ def sort_list(view_list):
         for anime in buckets[rate]:
             sorted_list.append(anime)
 
-    print "### Sorting complete ###"
+    # print "### Sorting complete ###"
     return sorted_list
 
 

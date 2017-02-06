@@ -54,7 +54,7 @@ if __name__ == '__main__':
     usernames = user_item.keys()
     for user in usernames[0:NUM_TESTS]:
         user_list = user_item[user]
-        recommendations = get_recomm(user)
+        recommendations = get_recomm(user, exlude=False)
         num_good_recomms = get_num_good_recomms(recommendations, user_list)
         num_good_animes = get_num_good_animes(user_list)
 
