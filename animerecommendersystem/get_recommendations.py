@@ -9,9 +9,6 @@ import definitions
 USER_NAME = 'Tills'
 NUM_NEIGHBORS = 5
 
-# needed for precision: first number is ALREADYSEEN animes, second is TOTAL animes processed
-ALREADYSEEN_TOTAL = [0, 0]
-
 
 def get_neighbors(user_cluster_dict, user_cluster_matrix, user_matrix_dict_indices, user_name):
     """
@@ -69,8 +66,6 @@ def get_recomm_from_user(user_item, num_recom, neigh, anime_list, user_anime_lis
 
     for possible_recommendation in sorted_list:
         # Check whether it is contained into anime_list
-        if possible_recommendation in user_anime_list:
-            ALREADYSEEN_TOTAL[0] += 1
         if (possible_recommendation not in anime_list) and (possible_recommendation not in user_anime_list):
             num_added += 1
             new_list.append(possible_recommendation)
@@ -78,16 +73,14 @@ def get_recomm_from_user(user_item, num_recom, neigh, anime_list, user_anime_lis
         if num_added == num_recom:
             return new_list
 
-        # needed for precision
-        ALREADYSEEN_TOTAL[1] += 1
-
     # We arrive here only if the neighbor has not enough anime to suggest.
     return new_list
 
 
-def get_recomm(user_name):
+def get_recomm(user_name, exlude=True):
     """
     :param user_name: Name of the user we want to give suggetions to
+    :param exlude: if True, exlude all anime seen by the user, otherwise pass an empty list.
     :return: a list of animes that could (possibly) be interesting to him/her
     """
     # read from file computed in user_scraping.py
@@ -104,8 +97,12 @@ def get_recomm(user_name):
     # For each neighbor, take some anime
     i = 0
     anime_list = list()
-    user_anime_list = user_item[USER_NAME].keys()
+    if exlude:
+        user_anime_list = user_item[USER_NAME].keys()
+    else:
+        user_anime_list = list()
 
+    # TODO cycle on recomm tentatives --> 2 cases
     for neigh in neighbors_list:
         num_recomm = get_num_recomm(i)
         anime_list = get_recomm_from_user(user_item, num_recomm, neigh, anime_list, user_anime_list)
@@ -119,9 +116,5 @@ if __name__ == '__main__':
 
     recommendations = get_recomm(USER_NAME)
 
-    # compute precision
-    precision = float(ALREADYSEEN_TOTAL[0])/float(ALREADYSEEN_TOTAL[1])
-
     print "### RECOMMENDATIONS COMPUTED ###"
     print recommendations
-    print precision

@@ -34,3 +34,6 @@ if __name__ == '__main__':
     user_item = read_user_item_json()
 
     sort_list(user_item['borf12349'])
+
+
+# TODO exlude dropped from sorted list
