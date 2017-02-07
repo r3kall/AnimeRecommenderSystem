@@ -17,10 +17,9 @@ Where:
 
 from get_recommendations import get_recomm
 from user_cluster_matrix import read_user_item_json
+import numpy as np
 
-NUM_TESTS = 10
 RATE_THRESHOLD = 6
-
 
 def get_num_good_recomms(recommendations, user_list):
     num_good_recomms = 0
@@ -52,17 +51,37 @@ if __name__ == '__main__':
     print "### RECALL AND PRECISION ESTIMATION ###"
     user_item = read_user_item_json()
     usernames = user_item.keys()
-    for user in usernames[0:NUM_TESTS]:
+
+    # arrays to evaluate system
+    precision_array = np.empty(len(usernames))
+    recall_array = np.empty(len(usernames))
+    i = 0
+    # for all users
+    for user in usernames:
         user_list = user_item[user]
-        recommendations = get_recomm(user, exlude=False)
+        recommendations = get_recomm(user, user_item, exclude=False)
         num_good_recomms = get_num_good_recomms(recommendations, user_list)
         num_good_animes = get_num_good_animes(user_list)
 
         if num_good_animes > 0:
-            recall = num_good_recomms/(num_good_animes+0.0)
-            print "Recall estimation for user " + user + " is " + str(recall) + "."
-        else:
-            print "Recall estimation for user " + user + " is 0/0."
+            recall_array[i] = num_good_recomms/(num_good_animes+0.0)
+            # print "Recall estimation for user " + user + " is " + str(recall_array[i]) + "."
+        # else:
+            #print "Recall estimation for user " + user + " is 0/0."
 
-        precision = num_good_recomms/(len(recommendations)+0.0)
-        print "Precision estimation for user " + user + " is " + str(precision) + "."
+        precision_array[i] = num_good_recomms/(len(recommendations)+0.0)
+        # print "Precision estimation for user " + user + " is " + str(precision_array[i]) + "."
+        i += 1
+
+    print "Minimum precision is "+str(np.min(precision_array))
+    print "Minimum recall is "+str(np.min(recall_array))
+
+    print "Maximum precision is "+str(np.max(precision_array))
+    print "Maximum recall is "+str(np.max(recall_array))
+
+    print "Average of precision is "+str(np.mean(precision_array))
+    print "Average of recall is "+str(np.mean(recall_array))
+
+    print "Standard deviation of precision is "+str(np.std(precision_array))
+    print "Standard deviation of recall is "+str(np.std(recall_array))
+
