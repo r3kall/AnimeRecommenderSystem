@@ -16,6 +16,7 @@ import definitions
 ANIME_ID_FIELD = 'anime_id'
 RATE_FIELD = 'rate'
 CURR_STATE_FIELD = 'curr_state'
+MEAN_RATE = 'mean_rate'
 
 # Initialize the JSON as empty
 users_json = {}
@@ -41,6 +42,11 @@ def add_anime(username, anime_id, rate, curr_state):
     users_json[username][anime_id] = anime_record
 
 
+def add_mean_rate(username, mean_rate):
+    """This function add to 'users_json' dictionary the mean rate of an user"""
+    users_json[username][MEAN_RATE] = mean_rate
+
+
 def scrape_page(file_name):
     """
     Calls add_anime for this user and for each anime in this anime_list.
@@ -58,11 +64,18 @@ def scrape_page(file_name):
         json_animes = soup.find_all('table', attrs={'data-items': True})
         x = json.loads(json_animes[0]['data-items'])
 
+        counter = 0
+        rate_sum = 0
         for j in x:
             id = int(j['anime_url'][7:len(j['anime_url'])].split('/')[0])
             rate = int(j['score'])
             state = j['status']
             add_anime(username, id, rate, state)
+            rate_sum += rate
+            counter += 1
+
+        mean_rate = float(rate_sum) / float(counter)
+        add_mean_rate(username, mean_rate)
 
 
 def create_user_item_json():
