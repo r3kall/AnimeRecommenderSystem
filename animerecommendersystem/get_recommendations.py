@@ -8,6 +8,10 @@ import definitions
 
 NUM_NEIGHBORS = 5
 
+# Codes used for specifying the way we take recommendations from neighbors
+FIRST_USER_FIRST = 0
+ITERATIVE = 1
+
 
 def get_neighbors(user_name, user_cluster_dict,
                              user_cluster_matrix,
@@ -16,6 +20,7 @@ def get_neighbors(user_name, user_cluster_dict,
     :param user_name:
     :param user_cluster_matrix:
     :param user_cluster_indices:
+    :param user_cluster_dict:
     :return:
     """
     neigh = NearestNeighbors(n_neighbors=NUM_NEIGHBORS)
@@ -51,11 +56,11 @@ def get_num_recomm(i):
 
 def get_recomm_from_user(k, neighbor_list, recom_list, user_anime_list):
     """
-    :param user_item: dictionary of anime watched by users
-    :param num_recom: number of recommendations we want to take from this user
-    :param neigh: current user we want to take recommendations from
-    :param anime_list: list of recommendations collected to far (we want to avoid duplicates)
-    :return: a new list L such that L contains anime_list and (hopefully) other recommendations.
+    :param k: number of recommendations we want to take from this user
+    :param neighbor_list: list of animes watched by the neighbor we want to take stuff from.
+    :param recom_list: list of recommendations collected to far (we want to avoid duplicates)
+    :param user_anime_list: list of animes watched by the user we want to suggest things to.
+    :return: a new_list that contains recom_list and (hopefully) other recommendations.
     """
     new_list = recom_list
     # Sort it in descending order
@@ -75,11 +80,53 @@ def get_recomm_from_user(k, neighbor_list, recom_list, user_anime_list):
     return new_list, k
 
 
-def get_recomm(user_name, user_item_matrix, k=10, exclude=True):
+def iterative_get_recom(k, neighbors_list, user_anime_list, user_item_matrix):
+    """
+    Support function for get_recom(), called if how_to is equal to ITERATIVE
+    :param k: total number of recommendations we want to get.
+    :param neighbors_list: list of users 'close' to our client's target.
+    :param user_anime_list: list of animes watched by our client's target.
+    :param user_item_matrix: data structure with watching lists for all users.
+    :return: a list of recommendations computed by taking some animes from each user (hopefully),
+             and iterating on them if the stuff we took is insufficient.
+    """
+    current_recom_list = list()
+    previous_recom_list = list()
+    recom_list = list()
+    while k > 0:
+        previous_recom_list = current_recom_list
+        i = 0
+        for neigh in neighbors_list:
+            neighbor_animes = user_item_matrix[neigh]
+            # Example: if we need only 3 more animes (i.e., k=3), but by default we would take 4,
+            # we need to reduce how_many.
+            how_many = min(k, get_num_recomm(i))
+            recom_list, remainder = get_recomm_from_user(how_many, neighbor_animes,
+                                                         recom_list, user_anime_list)
+            i += 1
+            k -= how_many - remainder
+            if k == 0:
+                break
+
+        current_recom_list = recom_list
+        # If the last iteration did not add anything, there's no reason to keep iterating.
+        if current_recom_list == previous_recom_list:
+            break
+
+            # Return them
+
+    return recom_list
+
+
+def get_recomm(user_name, user_item_matrix, k=10, exclude=True, how_to=FIRST_USER_FIRST):
     """
     :param user_name: Name of the user we want to give suggetions to
     :param user_item_matrix: read from file computed in user_scraping.py
-    :param exlude: if True, exlude all anime seen by the user, otherwise pass an empty list.
+    :param k: number of total recommendations we want to take
+    :param exclude: if True, exlude all anime seen by the user, otherwise pass an empty list.
+    :param how_to: it specifies the way we take stuff from neighbors:
+           - if FIRST_USER_FIRST, 'take all from the first neighbor, then move to the second one if needed, and so on');
+           - if ITERATIVE, 'take some from each neighbor; if it's not enough, iterate on them to take additional stuff.
     :return: a list of animes that could (possibly) be interesting to him/her
     """
     # read from files computed in user_cluster_matrix.py
@@ -100,24 +147,33 @@ def get_recomm(user_name, user_item_matrix, k=10, exclude=True):
     # For each neighbor, take some anime
     recom_list = list()
     # TODO cycle on recomm tentatives --> 2 cases
-    for neigh in neighbors_list:
-        neighbor_list = user_item_matrix[neigh]
-        recom_list, k = get_recomm_from_user(k, neighbor_list,
-                                             recom_list, user_anime_list)
-        if k == 0:
-            break
 
-    # Return them
-    return recom_list
+    if how_to == FIRST_USER_FIRST:
+        for neigh in neighbors_list:
+            neighbor_list = user_item_matrix[neigh]
+            recom_list, k = get_recomm_from_user(k, neighbor_list,
+                                                 recom_list, user_anime_list)
+            if k == 0:
+                break
+
+        # Return them
+        return recom_list
+
+    elif how_to == ITERATIVE:
+        return iterative_get_recom(k, neighbors_list, user_anime_list, user_item_matrix)
+
 
 if __name__ == '__main__':
     user_item = read_user_item_json()
     usernames = user_item.keys()
 
+    readable_user_list = list()
+    recomm = list()
+
     for user in usernames[0:1]:
         user_list = user_item[user]
         readable_user_list = user_list.keys()
-        recomm = get_recomm(user, user_item, exclude=True)
+        recomm = get_recomm(user, user_item, exclude=True, how_to=ITERATIVE)
 
     print '\n** recommendations **'
     print recomm
