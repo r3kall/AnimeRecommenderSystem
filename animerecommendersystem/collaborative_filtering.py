@@ -84,11 +84,12 @@ def compute_distance(username1, username2, user_item_matrix):
     return distance
 
 
-def get_neighbors(username, user_item_matrix):
+def get_neighbors(username, user_item_matrix, num_neighbors):
     """
     Basic idea: compute distance between 'username''s list and all other users, and pick the nearest ones.
     :param username:
     :param user_item_matrix:
+    :param num_neighbors:
     :return:
     """
     distances_dict = defaultdict(float)
@@ -106,7 +107,7 @@ def get_neighbors(username, user_item_matrix):
         """
     # Once we have all distances, sort the dict by value and return a list containing the usernames of the nearest ones.
     distances_dict = sorted(distances_dict, key=distances_dict.get, reverse=False)
-    return distances_dict[0:NUM_NEIGHBORS]
+    return distances_dict[0:num_neighbors]
 
 
 def estimate_rate(neighbor_animes, anime):
@@ -127,13 +128,21 @@ def estimate_rate(neighbor_animes, anime):
     return neighbor_rate
 
 
-def get_recommendations(user_name, user_item_matrix, num_recom=NUM_RECOM, exclude=True):
+def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS, weights=NEIGHBORS_WEIGHTS,
+                        num_recom=NUM_RECOM, testing=False):
+    """
+    :param user_name:
+    :param user_item_matrix:
+    :param num_recom:
+    :param num_neighbors:
+    :param weights:
+    :param testing:
+    :return:
+    """
     # Invoke kNN on the matrix to get neighbors
     user_list = user_item_matrix[user_name]
-    if not exclude:
-        user_list = list()
 
-    neighbors_list = get_neighbors(user_name, user_item_matrix)
+    neighbors_list = get_neighbors(user_name, user_item_matrix, num_neighbors)
 
     aggregate_rates_dict = defaultdict(float)
 
@@ -142,19 +151,28 @@ def get_recommendations(user_name, user_item_matrix, num_recom=NUM_RECOM, exclud
         neighbor_animes = user_item_matrix[neighbor]
         # For each anime in neighbor_anime, check whether the user watched it. If not, aggregate its rate.
         for anime in neighbor_animes.keys():
-            if anime not in user_list:
+            # Consider_anime is True if we want to use this anime, False otherwise
+            # When do we want to use this anime?
+            # 1) The user knows this anime, and we're testing (RMSE works only with known animes)
+            # 2) We want to recommend new animes, and the user didn't see it.
+            good_for_recommend = not testing and anime not in user_list
+            good_for_testing = testing and anime in user_list
+            if good_for_recommend or good_for_testing:
                 # Then, it's good
                 neighbor_rate = neighbor_animes[anime]['rate']
                 if neighbor_rate == 0:
                     neighbor_rate = estimate_rate(neighbor_animes, anime)
 
-                aggregate_rates_dict[anime] = aggregate_rates_dict.get(anime, 0) + neighbor_rate*NEIGHBORS_WEIGHTS[i]
+                aggregate_rates_dict[anime] = aggregate_rates_dict.get(anime, 0) + neighbor_rate*weights[i]
 
         i += 1
 
     # Once we have all possible animes to recommend with the related aggregate weight, we have to pick the best ones.
-    aggregate_rates_dict = sorted(aggregate_rates_dict, key=aggregate_rates_dict.get, reverse=True)
-    return aggregate_rates_dict[0:num_recom]
+    sorted_animes = sorted(aggregate_rates_dict, key=aggregate_rates_dict.get, reverse=True)
+    results = dict()
+    for anime in sorted_animes[0:num_recom]:
+        results[anime] = aggregate_rates_dict[anime]
+    return results
 
 
 if __name__ == '__main__':
@@ -172,7 +190,7 @@ if __name__ == '__main__':
         print "Recommendations (exclude=True): " + str(recommendations)
 
         starting_time = time.time()
-        recommendations2 = get_recommendations(test_user_name, users_lists, exclude=False)
+        recommendations2 = get_recommendations(test_user_name, users_lists, testing=True)
         required_time = time.time() - starting_time
         print "Required time: " + str(required_time) + " seconds."
         print "Recommendations(exclude=False): " + str(recommendations2)
