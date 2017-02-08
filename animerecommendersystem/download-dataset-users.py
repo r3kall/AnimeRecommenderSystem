@@ -44,9 +44,13 @@ if not os.path.exists(definitions.USERS_DIR):
 url = "https://myanimelist.net/users.php"
 
 list_of_countries = ["Italy", "USA", "Germany", "Japan", "Brasil", "Russia",
-                     "Greece", "Saudi Arabia", "Egypt", "England", "Mexico"]
+                     "Greece", "Saudi Arabia", "Egypt", "England", "Mexico", "Spain", "France",
+                     "Argentina", "Ireland", "Australia", "South Africa", "Canada", "China", "Thailand",
+                     "Albania", "Bangladesh", "India", "Denmark", "Romania", "Lebanon", "Ecuador",
+                     "Austria", "Sweden", "Finland", "Switzerland", "Belgium", "Turkey", "Portugal",
+                     "Bulgaria", "Colombia", "Croatia", "Israel", "Norway", "Scotland", "Malaysia", "Venezuela"]
 
-for country in list_of_countries:
+for country in list_of_countries[41:len(list_of_countries)]:
     print country
     # search users by country, age and gender don't care
     country_url = url + "?q=&loc=" + country + "&agelow=0&agehigh=0&g="
@@ -77,10 +81,10 @@ for country in list_of_countries:
     users_per_page = 24
 
     # users i saw until now
-    current_users = 24
+    current_users = 120
 
     # num pages to crawl
-    num_pages = 5
+    num_pages = 20
 
     # search in num_pages pages
     while current_users <= users_per_page*num_pages:
