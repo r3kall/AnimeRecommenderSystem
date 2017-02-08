@@ -105,7 +105,7 @@ def get_neighbors(username, user_item_matrix):
             distances_dict[user2] = compute_distance(username, user2, user_item_matrix)
         """
     # Once we have all distances, sort the dict by value and return a list containing the usernames of the nearest ones.
-    distances_dict = sorted(distances_dict, key=distances_dict.get, reverse=True)
+    distances_dict = sorted(distances_dict, key=distances_dict.get, reverse=False)
     return distances_dict[0:NUM_NEIGHBORS]
 
 
@@ -127,8 +127,12 @@ def estimate_rate(neighbor_animes, anime):
     return neighbor_rate
 
 
-def get_recommendaions(user_name, user_item_matrix, num_recom=NUM_RECOM, exclude=True):
+def get_recommendations(user_name, user_item_matrix, num_recom=NUM_RECOM, exclude=True):
     # Invoke kNN on the matrix to get neighbors
+    user_list = user_item_matrix[user_name]
+    if not exclude:
+        user_list = list()
+
     neighbors_list = get_neighbors(user_name, user_item_matrix)
 
     aggregate_rates_dict = defaultdict(float)
@@ -138,13 +142,15 @@ def get_recommendaions(user_name, user_item_matrix, num_recom=NUM_RECOM, exclude
         neighbor_animes = user_item_matrix[neighbor]
         # For each anime in neighbor_anime, check whether the user watched it. If not, aggregate its rate.
         for anime in neighbor_animes.keys():
-            if anime not in user_item_matrix[user_name]:
+            if anime not in user_list:
                 # Then, it's good
                 neighbor_rate = neighbor_animes[anime]['rate']
                 if neighbor_rate == 0:
                     neighbor_rate = estimate_rate(neighbor_animes, anime)
 
                 aggregate_rates_dict[anime] = aggregate_rates_dict.get(anime, 0) + neighbor_rate*NEIGHBORS_WEIGHTS[i]
+            # else:
+            #     print str(anime)+": KAFFEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE?"
 
         i += 1
 
@@ -154,14 +160,29 @@ def get_recommendaions(user_name, user_item_matrix, num_recom=NUM_RECOM, exclude
 
 
 if __name__ == '__main__':
-    test_user_name = "IsaFrasson"
     print "STARTING"
     user_item_matrix = read_user_item_json()
+    test_user_names = user_item_matrix.keys()[0:50]
+    # test_user_name = 'Lebbing'
 
-    starting_time = time.time()
-    recommendations = get_recommendaions(test_user_name, user_item_matrix)
-    required_time = time.time() - starting_time
-    print "Required time: " + str(required_time) + " seconds."
-    print "Recommendations: " + str(recommendations)
+    for test_user_name in test_user_names:
+        print "-----------------------------------------------------------------------------"
+        starting_time = time.time()
+        recommendations = get_recommendations(test_user_name, user_item_matrix)
+        required_time = time.time() - starting_time
+        print "Required time: " + str(required_time) + " seconds."
+        print "Recommendations (exclude=True): " + str(recommendations)
+
+        starting_time = time.time()
+        recommendations2 = get_recommendations(test_user_name, user_item_matrix, exclude=False)
+        required_time = time.time() - starting_time
+        print "Required time: " + str(required_time) + " seconds."
+        print "Recommendations(exclude=False): " + str(recommendations2)
+
+        recommendations = set(recommendations)
+        recommendations2 = set(recommendations2)
+        if recommendations != recommendations2:
+            print "E RENZIE KE FAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?????"
+        print test_user_name + "'s list: "+str(user_item_matrix[test_user_name].keys())
 
 
