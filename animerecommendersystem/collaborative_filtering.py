@@ -149,8 +149,6 @@ def get_recommendations(user_name, user_item_matrix, num_recom=NUM_RECOM, exclud
                     neighbor_rate = estimate_rate(neighbor_animes, anime)
 
                 aggregate_rates_dict[anime] = aggregate_rates_dict.get(anime, 0) + neighbor_rate*NEIGHBORS_WEIGHTS[i]
-            # else:
-            #     print str(anime)+": KAFFEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE?"
 
         i += 1
 
@@ -161,20 +159,20 @@ def get_recommendations(user_name, user_item_matrix, num_recom=NUM_RECOM, exclud
 
 if __name__ == '__main__':
     print "STARTING"
-    user_item_matrix = read_user_item_json()
-    test_user_names = user_item_matrix.keys()[0:50]
+    users_lists = read_user_item_json()
+    test_user_names = users_lists.keys()[0:50]
     # test_user_name = 'Lebbing'
 
     for test_user_name in test_user_names:
         print "-----------------------------------------------------------------------------"
         starting_time = time.time()
-        recommendations = get_recommendations(test_user_name, user_item_matrix)
+        recommendations = get_recommendations(test_user_name, users_lists)
         required_time = time.time() - starting_time
         print "Required time: " + str(required_time) + " seconds."
         print "Recommendations (exclude=True): " + str(recommendations)
 
         starting_time = time.time()
-        recommendations2 = get_recommendations(test_user_name, user_item_matrix, exclude=False)
+        recommendations2 = get_recommendations(test_user_name, users_lists, exclude=False)
         required_time = time.time() - starting_time
         print "Required time: " + str(required_time) + " seconds."
         print "Recommendations(exclude=False): " + str(recommendations2)
@@ -183,6 +181,4 @@ if __name__ == '__main__':
         recommendations2 = set(recommendations2)
         if recommendations != recommendations2:
             print "E RENZIE KE FAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?????"
-        print test_user_name + "'s list: "+str(user_item_matrix[test_user_name].keys())
-
-
+        print test_user_name + "'s list: "+str(users_lists[test_user_name].keys())
