@@ -18,3 +18,9 @@ USER_CLUSTER_DICT = os.path.join(FILE_DIR, 'user-cluster-dict.npy')
 USER_CLUSTER_MATRIX = os.path.join(FILE_DIR, 'user-cluster-matrix.npy')
 USER_CLUSTER_INDICES = os.path.join(FILE_DIR, 'user-cluster-indices.npy')
 
+# Anime states codes
+WATCHING = 1
+COMPLETED = 2
+ON_HOLD = 3
+DROPPED = 4
+PLANNED = 6
