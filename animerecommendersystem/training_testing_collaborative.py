@@ -135,6 +135,7 @@ if __name__ == '__main__':
         for n in NUMBER_NEIGHBORS:
             for w in NEIGHBORS_WEIGHTS:
                 for r in NUMBER_RECOMMENDATIONS:
+                    print str(n) + " " + str(w) + " " + str(r)
                     rmse_current = get_rmse(train, n, w, r)
                     if rmse_current < min_rmse:
                         min_rmse = rmse_current
