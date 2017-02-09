@@ -91,6 +91,7 @@ if __name__ == '__main__':
     # for each partition
     for i in range(0, 5):
         print i
+
         train, test = split(list_animes, i)
         # initialize two jsons we need
         user_item_json_train_i = {}
