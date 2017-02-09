@@ -22,14 +22,14 @@ import definitions
 from item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
 
 
-def read_user_item_json():
+def read_user_item_json(filename):
     """
     Read the json file and return a dictionary representation of the
     user-item matrix.
 
     :return:  dictionary of users - items
     """
-    with open(definitions.JSON_USER_FILE, 'r') as fp:
+    with open(filename, 'r') as fp:
         d = json.load(fp)
 
     if d is not None:
