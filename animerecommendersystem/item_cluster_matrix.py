@@ -63,7 +63,7 @@ def item_cluster_matrix(item_feature_matrix, num_of_cluster,
     data = item_feature_matrix.T
 
     cntr, u, u0, d, jm, p, fpc = cmeans(
-        data, num_of_cluster, 2, error=error, maxiter=max_iter
+        data, num_of_cluster, 1.25, error=error, maxiter=max_iter, seed=123
     )
-
+    print "Clustering Iterations: %d" % p
     return u.T

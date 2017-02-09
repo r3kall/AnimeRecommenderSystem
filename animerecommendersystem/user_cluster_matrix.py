@@ -47,7 +47,7 @@ def ranking(dict_of_attributes, mean_rate):
         if rate > 0:
             return rate, True
         elif status == 4:  # if status = dropped
-            return 3, True
+            return max(int(mean_rate) // 2, 2), True
         else:
             return int(mean_rate), True
     return 0, False
