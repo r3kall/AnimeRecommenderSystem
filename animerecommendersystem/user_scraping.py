@@ -64,18 +64,18 @@ def scrape_page(file_name):
         json_animes = soup.find_all('table', attrs={'data-items': True})
         x = json.loads(json_animes[0]['data-items'])
 
-        counter = 0
-        rate_sum = 0
+        # counter = 0
+        # rate_sum = 0
         for j in x:
             id = int(j['anime_url'][7:len(j['anime_url'])].split('/')[0])
             rate = int(j['score'])
             state = j['status']
             add_anime(username, id, rate, state)
-            rate_sum += rate
-            counter += 1
+            # rate_sum += rate
+            # counter += 1
 
-        mean_rate = float(rate_sum) / float(counter)
-        add_mean_rate(username, mean_rate)
+        # mean_rate = float(rate_sum) / float(counter)
+        # add_mean_rate(username, mean_rate)
 
 
 def create_user_item_json():

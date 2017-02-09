@@ -25,8 +25,10 @@ We should use k-fold cross validation...
 NOTE: testing=True means that we need to apply get_recommendations only on animes watched by the user.
 """
 
+import math
 from user_cluster_matrix import read_user_item_json
 from collaborative_filtering import get_recommendations
+import numpy as np
 
 NUMBER_NEIGHBORS = [3, 5, 7]
 NEIGHBORS_WEIGHTS = [0.1, 0.2, 0.25]
@@ -78,8 +80,18 @@ def normalize_rates(recommendations):
 
 
 def compute_rmse(user_animes, recommendations):
-    # TODO use normalized rates and user rates to compute rmse
-    return 0
+    """
+    :param user_animes:
+    :param recommendations: includes only animes seen by user since we are testing
+    :return: RMSE computed with predicted rates in recommendations and real rates given by the user on those animes
+    """
+
+    recommendations = normalize_rates(recommendations)
+    sum_squares = 0
+    for anime in recommendations:
+        sum_squares += math.pow((recommendations[anime]-user_animes[anime]['rate']), 2)
+    result = math.sqrt(sum_squares/len(recommendations.keys()))
+    return result
 
 
 def get_rmse(user_item_matrix, n, w, r):
@@ -106,10 +118,37 @@ def get_rmse(user_item_matrix, n, w, r):
 if __name__ == '__main__':
     users_lists = read_user_item_json()
 
+    # store all remse computed for all testing sets
+    test_rmse_dict = dict()
+
+    # K-fold cross validation. At each split one of the 5 partitions of the users becomes testing set, the rest is
+    # training.
     for i in range(0, 5):
         print "----------------------------------"
+        # parameter i decides which partition we are choosing as test.
         train, test = split(users_lists, i)
-        print train.keys()[0:20]
-        print test.keys()[0:20]
+
+        min_rmse_parameter = (0, 0, 0)
+        min_rmse = 10
+
+        # train parameters
+        for n in NUMBER_NEIGHBORS:
+            for w in NEIGHBORS_WEIGHTS:
+                for r in NUMBER_RECOMMENDATIONS:
+                    rmse_current = get_rmse(train, n, w, r)
+                    if rmse_current < min_rmse:
+                        min_rmse = rmse_current
+                        min_rmse_parameter = (n, w, r)
+
+        # use min rmse parameter to get the rmse of the testing set.
+        test_rmse_dict[i] = get_rmse(test, min_rmse_parameter[0], min_rmse_parameter[1], min_rmse_parameter[2])
+        print "Split "+str(i) + ": best parameter choice is " + str(min_rmse_parameter)
+    average_rmse = np.mean(test_rmse_dict.values())
+    print "Average rmse for collaborative filtering recommendation system is "+str(average_rmse)
+
+
+
+
+
 
 
