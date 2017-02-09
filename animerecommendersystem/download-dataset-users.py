@@ -55,9 +55,11 @@ def has_enough_anime(anime_list_json):
     return len(anime_dict) > MIN_NUMBER_ANIME
 
 
-def get_usernames(users_per_country, users):
+def get_usernames(users_per_country, excluded):
     """Get usernames in order to download them later"""
     assert users_per_country > 1
+
+    new_list = []
 
     def search_users(html_page):
         # search for urls in the page, corresponding to the
@@ -65,10 +67,12 @@ def get_usernames(users_per_country, users):
         search = re.findall('''href=["'](/profile/[0-9a-zA-Z|_\-]+)["']''',
                             html_page, re.UNICODE)
 
+        country_list = []
         # since each url is present twice in the page, i pick it only once
         for t in range(len(search) / 2):
-            if t not in users:
-                users.append(search[t * 2][9:])
+            if t not in excluded:
+                country_list.append(search[t * 2][9:])
+        return country_list
 
     def attempts(url, tentatives=10):
         # this is to avoid blocking because of http errors,
@@ -84,7 +88,6 @@ def get_usernames(users_per_country, users):
         return None
 
     for country in list_of_countries:
-        user_count = 0  # counter of users
         print "Starting download from %s" % str(country)
         # search users by country, age and gender don't care
         country_url = url + "?q=&loc=" + country + "&agelow=0&agehigh=0&g="
@@ -93,8 +96,8 @@ def get_usernames(users_per_country, users):
         if html_page is None:
             continue
 
-        search_users(html_page)  # populate users list
-        user_count += len(users)
+        country_list = search_users(html_page)  # populate users list
+        user_count = len(country_list)
 
         users_per_page = 24  # users in each page
         current_users = 24  # users i saw until now
@@ -121,8 +124,10 @@ def get_usernames(users_per_country, users):
 
             # search for urls in the page, corresponding to the
             # form /profile/[name_of_user], these are user profiles
-            search_users(html_page)
-            user_count += len(users)
+            country_list += search_users(html_page)
+            user_count = len(country_list)
+        new_list += country_list
+    return new_list
 
 
 def download_user_lists(user_list):
@@ -152,11 +157,14 @@ def download_user_lists(user_list):
 def download_dataset_users():
     """Wrapper for download the user dataset"""
     total_count = 0
-    users = os.listdir(definitions.USERS_DIR)
-    print "Already downloaded users:  %d" % len(users)
+    excluded = os.listdir(definitions.USERS_DIR)
+    for u in range(len(excluded)):
+        excluded[u] = excluded[u][:-5]
+    print "Already downloaded users:  %d" % len(excluded)
 
+    users = []
     while total_count < MIN_NUMBER_USERS:
-        get_usernames(500, users)
+        users = get_usernames(400, excluded + users)
         total_count += download_user_lists(users)
         print "Downloaded %d lists" % total_count
     return total_count
