@@ -131,14 +131,14 @@ if __name__ == '__main__':
                         valid_rate_counter_test += 1
 
             # update mean rates
-            if valid_rate_counter_train != 0:
+            if mean_rate_train != 0:
                 user_item_json_train_i[user][MEAN_RATE] = \
                     float(mean_rate_train) / float(valid_rate_counter_train)
             else:
                 user_item_json_train_i[user] = {}
                 user_item_json_train_i[user][MEAN_RATE] = 0.
 
-            if valid_rate_counter_test != 0:
+            if mean_rate_test != 0:
                 user_item_json_test_i[user][MEAN_RATE] = \
                     float(mean_rate_test) / float(valid_rate_counter_test)
             else:
