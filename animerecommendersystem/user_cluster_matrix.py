@@ -37,7 +37,7 @@ def read_user_item_json(filename):
     return None
 
 
-def ranking(dict_of_attributes):
+def ranking(dict_of_attributes, mean_rate):
     """This function return a value depending on values"""
     rate = dict_of_attributes['rate']
     status = dict_of_attributes['curr_state']
@@ -49,7 +49,7 @@ def ranking(dict_of_attributes):
         elif status == 4:  # if status = dropped
             return 3, True
         else:
-            return 5, True
+            return int(mean_rate), True
     return 0, False
 
 
@@ -87,13 +87,13 @@ def build_user_cluster_matrix(user_item_matrix,
     '''
     user_cluster_indices = dict()
 
-    for username, item_list in user_item_matrix.iteritems():
+    for username in user_item_matrix.keys():
         # initialize an empty vector and zero ranksum
         user_cluster_vector = np.zeros(C, dtype=np.float64)
         ranksum = 0
 
         # for each item...
-        for id, values in item_list.iteritems():
+        for id, values in user_item_matrix[username]['list'].iteritems():
             try:
                 # exception can be raised if we do not have the item
                 # in our collection
@@ -101,7 +101,7 @@ def build_user_cluster_matrix(user_item_matrix,
             except KeyError:
                 continue
 
-            r, valid = ranking(values)  # values depending on values
+            r, valid = ranking(values, user_item_matrix[username]['mean_rate'])
             if valid:
                 user_cluster_vector += item_cluster_matrix[pos, :] * r
                 ranksum += r

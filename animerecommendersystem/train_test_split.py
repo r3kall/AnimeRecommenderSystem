@@ -105,7 +105,6 @@ if __name__ == '__main__':
         user_item_json_test_i = {}
 
         # for each user
-        user_count = 0
         for user in user_item.keys():
             # initialize mean rates, will be computed at the end for each user in each json
             mean_rate_train = 0
@@ -135,17 +134,23 @@ if __name__ == '__main__':
                 user_item_json_train_i[user][MEAN_RATE] = \
                     float(mean_rate_train) / float(valid_rate_counter_train)
             else:
-                user_item_json_train_i[user] = {}
-                user_item_json_train_i[user][MEAN_RATE] = 0.
+                if user in user_item_json_train_i.keys():
+                    user_item_json_train_i[user][MEAN_RATE] = 0.
+                else:
+                    user_item_json_train_i[user] = {}
+                    user_item_json_train_i[user][LIST_FIELD] = {}
+                    user_item_json_train_i[user][MEAN_RATE] = 0.
 
             if mean_rate_test != 0:
                 user_item_json_test_i[user][MEAN_RATE] = \
                     float(mean_rate_test) / float(valid_rate_counter_test)
             else:
-                user_item_json_test_i[user] = {}
-                user_item_json_test_i[user][MEAN_RATE] = 0.
-            user_count += 1
-            print "User #%d" % user_count
+                if user in user_item_json_test_i.keys():
+                    user_item_json_test_i[user][MEAN_RATE] = 0.
+                else:
+                    user_item_json_test_i[user] = {}
+                    user_item_json_test_i[user][LIST_FIELD] = {}
+                    user_item_json_test_i[user][MEAN_RATE] = 0.
 
         # save on file
         filename_train = "user_item_train_"+str(i)+".json"
