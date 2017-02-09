@@ -93,6 +93,7 @@ if __name__ == '__main__':
         print i
 
         train, test = split(list_animes, i)
+        print test
         # initialize two jsons we need
         user_item_json_train_i = {}
         user_item_json_test_i = {}
@@ -117,12 +118,14 @@ if __name__ == '__main__':
             if mean_rate_train != 0:
                 user_item_json_train_i[user][MEAN_RATE] = mean_rate_train/len(user_item_json_train_i[user][LIST_FIELD].keys())
             else:
+                user_item_json_train_i[user] = {}
                 user_item_json_train_i[user][MEAN_RATE] = 0
 
             if mean_rate_test != 0:
                 user_item_json_test_i[user][MEAN_RATE] = mean_rate_test / len(
                     user_item_json_test_i[user][LIST_FIELD].keys())
             else:
+                user_item_json_test_i[user] = {}
                 user_item_json_test_i[user][MEAN_RATE] = 0
 
         # save on file
