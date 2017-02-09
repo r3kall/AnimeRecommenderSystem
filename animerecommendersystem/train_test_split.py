@@ -9,6 +9,7 @@ Once established the logical sets, for each couple train-test:
 """
 import os
 import json
+import time
 import definitions
 from user_cluster_matrix import read_user_item_json
 
@@ -26,10 +27,12 @@ def build_id_list():
     """
     :return: List of animes ids we have, from filenames
     """
+    t0 = time.time()
     res = list()
     html_anime_list = os.listdir(definitions.HTML_DIR)
     for anime_file in html_anime_list:
         res.append(anime_file[:len(anime_file)-5])
+    print "Time to compute Item IDs list:  %f seconds" % (time.time() - t0)
     return res
 
 
@@ -39,6 +42,7 @@ def split(list_animes, permutation):
     :param permutation: Number of selected permutation (e.g first partition is test set, second partition ...etc.
     :return: Training and testing lists of anime ids
     """
+    t0 = time.time()
     train_list = list()
     test_list = list()
 
@@ -56,6 +60,7 @@ def split(list_animes, permutation):
     for anime2 in list_animes[ending_point:]:
         train_list.append(anime2)
 
+    print "Time to splitting partition %d:  %f seconds" % (permutation, time.time() - t0)
     return train_list, test_list
 
 
@@ -86,47 +91,61 @@ if __name__ == '__main__':
     list_animes = build_id_list()
 
     # read complete json
-    user_item = read_user_item_json()
+    user_item = read_user_item_json(definitions.JSON_USER_FILE)
 
     # for each partition
-    for i in range(0, 5):
-        print i
+    for i in range(0, 2):
+        print "Partition " + str(i)
+        t0 = time.time()
 
         train, test = split(list_animes, i)
-        print test
+        # print test
         # initialize two jsons we need
         user_item_json_train_i = {}
         user_item_json_test_i = {}
 
         # for each user
+        user_count = 0
         for user in user_item.keys():
             # initialize mean rates, will be computed at the end for each user in each json
             mean_rate_train = 0
             mean_rate_test = 0
+            valid_rate_counter_train = 0
+            valid_rate_counter_test = 0
 
             # update anime lists in jsons
             for anime in user_item[user]:
                 if anime in train:
                     add_anime(user_item_json_train_i, user, anime, user_item[user][anime][RATE_FIELD],
                               user_item[user][anime][CURR_STATE_FIELD])
-                    mean_rate_train += user_item[user][anime][RATE_FIELD]
-                elif anime in test:
+                    rate = user_item[user][anime][RATE_FIELD]
+                    if rate != 0:
+                        mean_rate_train += rate
+                        valid_rate_counter_train += 1
+                else:
                     add_anime(user_item_json_test_i, user, anime, user_item[user][anime][RATE_FIELD],
                               user_item[user][anime][CURR_STATE_FIELD])
-                    mean_rate_test += user_item[user][anime][RATE_FIELD]
+                    rate = user_item[user][anime][RATE_FIELD]
+                    if rate != 0:
+                        mean_rate_test += rate
+                        valid_rate_counter_test += 1
+
             # update mean rates
             if mean_rate_train != 0:
-                user_item_json_train_i[user][MEAN_RATE] = mean_rate_train/len(user_item_json_train_i[user][LIST_FIELD].keys())
+                user_item_json_train_i[user][MEAN_RATE] = \
+                    float(mean_rate_train) / float(valid_rate_counter_train)
             else:
                 user_item_json_train_i[user] = {}
-                user_item_json_train_i[user][MEAN_RATE] = 0
+                user_item_json_train_i[user][MEAN_RATE] = 0.
 
             if mean_rate_test != 0:
-                user_item_json_test_i[user][MEAN_RATE] = mean_rate_test / len(
-                    user_item_json_test_i[user][LIST_FIELD].keys())
+                user_item_json_test_i[user][MEAN_RATE] = \
+                    float(mean_rate_test) / float(valid_rate_counter_test)
             else:
                 user_item_json_test_i[user] = {}
-                user_item_json_test_i[user][MEAN_RATE] = 0
+                user_item_json_test_i[user][MEAN_RATE] = 0.
+            user_count += 1
+            print "User #%d" % user_count
 
         # save on file
         filename_train = "user_item_train_"+str(i)+".json"
@@ -139,3 +158,5 @@ if __name__ == '__main__':
             j = json.dump(user_item_json_train_i, fp)
         with open(file_test, 'w') as fp2:
             j = json.dump(user_item_json_test_i, fp2)
+
+        print "Time to make partition %d:  %f seconds" % (i, time.time() - t0)

@@ -6,14 +6,17 @@ on fuzzy clustering. In other words, we want to tune our system in order to get
 results with the highest quality.
 """
 
+import time
 import numpy as np
 
 from sklearn.neighbors import NearestNeighbors
 from scipy.spatial.distance import correlation
 
+from user_cluster_matrix import read_user_item_json, build_user_cluster_matrix
+from item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
+
 
 def k_neighbors(user_cluster_matrix, user_cluster_indices, k):
-
     # create the k-neighbors unsupervised model
     model = NearestNeighbors(n_neighbors=k+1, metric='correlation',
                              algorithm='brute', leaf_size=30,
@@ -63,29 +66,17 @@ def rmse(user_item_matrix, neighbors):
     return np.sqrt(rmse_num / relevant_counter)
 
 
-
-
-from user_cluster_matrix import read_user_item_json, build_user_cluster_matrix
-from item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
-
-user_item = read_user_item_json()
-
-item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
-item_cluster = item_cluster_matrix(item_feature, 10)
-
-print "Start building user-cluster matrix"
-user_cluster_dict, user_cluster_matrix, user_cluster_indices = \
-    build_user_cluster_matrix(user_item, item_cluster, id_to_pos)
-
-neigh = k_neighbors(user_cluster_matrix, user_cluster_indices, 5)
-
-
-def k_fold_rmse():
+def fuzzy_k_fold_rmse(c=10):
     """Perform k-fold cross validation, with k=5"""
 
     # these are the same for all iterations
     item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
-    item_cluster = item_cluster_matrix(item_feature, 10)
+    print "Generating Item-Cluster xatrix..."
+    t0 = time.time()
+    item_cluster = item_cluster_matrix(item_feature, c)
+    print "Time to compute Item-Cluster matrix with %d clusters:  %f" % (
+        c, time.time() - t0
+    )
 
     for i in range(5):
         trn_filename = "user_item_train_"+str(i)+".json"
