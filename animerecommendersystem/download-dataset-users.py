@@ -1,6 +1,5 @@
 """
 download-dataset-users.py
-
 Download users' anime lists from myanimelist.net, from different countries
 spread all over the world.
 """
@@ -13,7 +12,7 @@ from bs4 import BeautifulSoup
 import definitions
 
 MIN_NUMBER_ANIME = 15  # Sampling and Selection of relevant users
-MIN_NUMBER_USERS = 8000
+MIN_NUMBER_USERS = 10000
 
 
 if not os.path.exists(definitions.FILE_DIR):
@@ -25,9 +24,11 @@ if not os.path.exists(definitions.USERS_DIR):
 url = "https://myanimelist.net/users.php"
 
 list_of_countries = ["Italy", "USA", "Germany", "Japan", "Brasil", "Russia",
-                     "Greece", "Saudi Arabia", "Egypt", "England", "Mexico",
-                     "France", "Ireland", "Poland", "South Korea", "UK",
-                     "Belgium", "Netherlands", "Spain", "Indonesia"]
+                     "Greece", "Saudi Arabia", "Egypt", "England", "Mexico", "Spain", "France",
+                     "Argentina", "Ireland", "Australia", "South Africa", "Canada", "China", "Thailand",
+                     "Albania", "Bangladesh", "India", "Denmark", "Romania", "Lebanon", "Ecuador",
+                     "Austria", "Sweden", "Finland", "Switzerland", "Belgium", "Turkey", "Portugal",
+                     "Bulgaria", "Colombia", "Croatia", "Israel", "Norway", "Scotland", "Malaysia", "Venezuela"]
 
 
 def is_good_user(html_page):
