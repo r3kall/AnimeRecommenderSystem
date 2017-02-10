@@ -24,9 +24,11 @@ We should use k-fold cross validation...
 
 NOTE: testing=True means that we need to apply get_recommendations only on animes watched by the user.
 """
-
-import collaborative_filtering
 import math
+import os
+
+import definitions
+import collaborative_filtering
 from user_cluster_matrix import read_user_item_json
 
 STILL_NO_BEST = -1
@@ -40,9 +42,21 @@ def compute_rmse(user_animes, recommendations):
     :param recommendations: includes only animes seen by user since we are testing
     :return: RMSE computed with predicted rates in recommendations and real rates given by the user on those animes
     """
+    # First of all, check if the user saw at least one anime. If not, return -1.
+    if user_animes.get('list') is None:
+        return -1
+
     sum_squares = 0
+    watched_count = 0
     for anime in recommendations:
-        sum_squares += math.pow((recommendations[anime]-user_animes[anime]['rate']), 2)
+        if anime in user_animes['list'].keys():
+            watched_count += 1
+            sum_squares += math.pow((recommendations[anime]-user_animes['list'][anime]['rate']), 2)
+
+    # If the user didn't see any of the proposed animes, we cannot use him for RMSE.
+    if watched_count == 0:
+        return -1
+
     result = math.sqrt(sum_squares/len(recommendations.keys()))
     return result
 
@@ -50,12 +64,22 @@ def compute_rmse(user_animes, recommendations):
 def test_cf_system(num_neighbors, user_lists):
     # We want to compute the average RMSE value for this training set. So we need an accumulator
     rmse_sum = 0
+    rmse_count = 0
     for username in training_user_lists.keys():
+        print "          -------------------------------------------------------------"
+        print "          Getting recommendations for user "+username
         # Pass the parameter we want to test
-        recommendations = collaborative_filtering.get_recommendations(username, user_lists, num_neighbors=num_neighbors)
-        rmse_sum += compute_rmse(username, recommendations, user_lists[username])
+        if user_lists[username].get('list') is None:
+            print "          Computation not executed for user "+username+" because he/she has no anime."
+        else:
+            recommendations = collaborative_filtering.get_recommendations(username, user_lists,
+                                                                          num_neighbors=num_neighbors)
+            rmse = compute_rmse(user_lists[username], recommendations)
+            if rmse != -1:
+                rmse_sum += compute_rmse(user_lists[username], recommendations)
+                rmse_count += 1
     # Now compute the average, and check whether the new parameter is the new best one.
-    avg_rmse = rmse_sum / len(user_lists.keys())
+    avg_rmse = rmse_sum / rmse_count
     return avg_rmse
 
 
@@ -63,17 +87,23 @@ if __name__ == '__main__':
     print "Starting training/testing phase for Collaborative Filtering RS"
 
     for i in range(0, 5):
+        print "-----------------------------------------------------------------------"
+        print "Iteration #"+str(i)
         # To decide which parameter is the best one, we need to compare their results.
         current_best_parameter = STILL_NO_BEST
         current_best_rmse = STILL_NO_BEST
         # Get training set and testing set for this particular round
-        train_filename = "user_item_train_" + str(i) + ".json"
-        test_filename = "user_item_test_" + str(i) + ".json"
+        train_filename = os.path.join(definitions.FILE_DIR,
+                                      "user_item_train_"+str(i)+".json")
+        test_filename = os.path.join(definitions.FILE_DIR,
+                                     "user_item_test_"+str(i)+".json")
         training_user_lists = read_user_item_json(train_filename)
         testing_user_lists = read_user_item_json(test_filename)
 
         # Call collaborative filtering RS passing the training set. Do it for each possible parameter.
         for n in num_neighbors_values:
+            print "     ------------------------------------------------------------------"
+            print "     Trying #neighbors="+str(n)
             avg_rmse = test_cf_system(n, training_user_lists)
             if current_best_parameter == STILL_NO_BEST or avg_rmse < current_best_rmse:
                 current_best_parameter = n

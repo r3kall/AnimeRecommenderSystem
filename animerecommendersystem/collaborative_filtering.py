@@ -48,26 +48,26 @@ def compute_distance(username1, username2, user_item_matrix):
     square_sum_2 = 0
 
     # Create a set that contains animes watched by at least one of the user.
-    total_set_animes = set(user1_animes.keys())
-    total_set_animes |= set(user2_animes.keys())
+    total_set_animes = set(user1_animes['list'].keys())
+    total_set_animes |= set(user2_animes['list'].keys())
     for anime in total_set_animes:
         watched1 = False
         watched2 = False
         user1_rate = 0
         user2_rate = 0
 
-        if anime in user1_animes.keys():
+        if anime in user1_animes['list'].keys():
             watched1 = True
-            user1_rate = user1_animes[anime]['rate']
+            user1_rate = user1_animes['list'][anime]['rate']
             if user1_rate == 0:
                 user1_rate = estimate_rate(user1_animes, anime)
 
             square_sum_1 += user1_rate*user1_rate
 
-        if anime in user2_animes.keys():
+        if anime in user2_animes['list'].keys():
             watched2 = True
 
-            user2_rate = user2_animes[anime]['rate']
+            user2_rate = user2_animes['list'][anime]['rate']
             if user2_rate == 0:
                 user2_rate = estimate_rate(user2_animes, anime)
 
@@ -94,7 +94,7 @@ def get_neighbors(username, user_item_matrix, num_neighbors):
     """
     distances_dict = defaultdict(float)
     for user2 in user_item_matrix.keys():
-        if user2 == username:
+        if user2 == username or user_item_matrix[user2].get('list') is None:
             continue
 
         distance = compute_distance(username, user2, user_item_matrix)
@@ -112,7 +112,8 @@ def get_neighbors(username, user_item_matrix, num_neighbors):
 
 def estimate_rate(neighbor_animes, anime):
     # We use a predefined rate according to the anime's state (e.g., DROPPED, COMPLETED, ...)
-    anime_state = neighbor_animes[anime]['curr_state']
+    # TODO Another way to estimate the rate could be based on using the mean_rate
+    anime_state = neighbor_animes['list'][anime]['curr_state']
     neighbor_rate = 0
     if anime_state == definitions.COMPLETED:
         neighbor_rate = COMPLETED_RATE
@@ -139,7 +140,6 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
     :param testing:
     :return:
     """
-    # Invoke kNN on the matrix to get neighbors
     user_list = user_item_matrix[user_name]
 
     neighbors_list = get_neighbors(user_name, user_item_matrix, num_neighbors)
@@ -150,20 +150,25 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
     for neighbor in neighbors_list:
         neighbor_animes = user_item_matrix[neighbor]
         # For each anime in neighbor_anime, check whether the user watched it. If not, aggregate its rate.
-        for anime in neighbor_animes.keys():
-            # Consider_anime is True if we want to use this anime, False otherwise
-            # When do we want to use this anime?
-            # 1) The user knows this anime, and we're testing (RMSE works only with known animes)
-            # 2) We want to recommend new animes, and the user didn't see it.
-            good_for_recommend = not testing and anime not in user_list
-            good_for_testing = testing and anime in user_list
-            if good_for_recommend or good_for_testing:
-                # Then, it's good
-                neighbor_rate = neighbor_animes[anime]['rate']
-                if neighbor_rate == 0:
-                    neighbor_rate = estimate_rate(neighbor_animes, anime)
+        if neighbor_animes.get('list') is not None:
+            for anime in neighbor_animes['list'].keys():
+                # Consider_anime is True if we want to use this anime, False otherwise
+                # When do we want to use this anime?
+                # 1) The user knows this anime, and we're testing (RMSE works only with known animes)
+                # 2) We want to recommend new animes, and the user didn't see it.
+                if user_list.get('list') is None:
+                    good_for_testing  = False
+                    good_for_recommend = not testing
+                else:
+                    good_for_recommend = not testing and anime not in user_list['list'].keys()
+                    good_for_testing = testing and anime in user_list['list'].keys()
+                if good_for_recommend or good_for_testing:
+                    # Then, it's good
+                    neighbor_rate = neighbor_animes['list'][anime]['rate']
+                    if neighbor_rate == 0:
+                        neighbor_rate = estimate_rate(neighbor_animes, anime)
 
-                aggregate_rates_dict[anime] = aggregate_rates_dict.get(anime, 0) + neighbor_rate*weights[i]
+                    aggregate_rates_dict[anime] = aggregate_rates_dict.get(anime, 0) + neighbor_rate*weights[i]
 
         i += 1
 
@@ -177,7 +182,7 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
 
 if __name__ == '__main__':
     print "STARTING"
-    users_lists = read_user_item_json()
+    users_lists = read_user_item_json('user_item.json')
     test_user_names = users_lists.keys()[0:50]
     # test_user_name = 'Lebbing'
 
