@@ -171,7 +171,7 @@ def estimate_rate(neighbor_animes, anime):
 
 
 def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS, weights=NEIGHBORS_WEIGHTS,
-                        num_recom=NUM_RECOM, testing=False, approx=True):
+                        num_recom=NUM_RECOM, testing=False, approx=True, list_for_recomm=None):
 
     user_list = user_item_matrix[user_name]
 
@@ -182,9 +182,12 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
 
     aggregate_rates_dict = defaultdict(float)
 
+    if list_for_recomm is None:
+        list_for_recomm = user_item_matrix
+
     i = 0
     for neighbor in neighbors_list:
-        neighbor_animes = user_item_matrix[neighbor]
+        neighbor_animes = list_for_recomm[neighbor]
         # For each anime in neighbor_anime, check whether the user watched it. If not, aggregate its rate.
         if neighbor_animes.get('list') is not None:
             for anime in neighbor_animes['list'].keys():
@@ -193,7 +196,7 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
                 # 1) The user knows this anime, and we're testing (RMSE works only with known animes)
                 # 2) We want to recommend new animes, and the user didn't see it.
                 if user_list.get('list') is None:
-                    good_for_testing  = False
+                    good_for_testing = False
                     good_for_recommend = not testing
                 else:
                     good_for_recommend = not testing and anime not in user_list['list'].keys()

@@ -61,11 +61,11 @@ def compute_rmse(user_animes, recommendations):
     return result
 
 
-def test_cf_system(num_neighbors, user_lists):
+def test_cf_system(num_neighbors, user_lists, user_list_total):
     # We want to compute the average RMSE value for this training set. So we need an accumulator
     rmse_sum = 0
     rmse_count = 0
-    for username in training_user_lists.keys():
+    for username in training_user_lists.keys()[0:20]:
         print "          -------------------------------------------------------------"
         print "          Getting recommendations for user "+username
         # Pass the parameter we want to test
@@ -73,10 +73,12 @@ def test_cf_system(num_neighbors, user_lists):
             print "          Computation not executed for user "+username+" because he/she has no anime."
         else:
             recommendations = collaborative_filtering.get_recommendations(username, user_lists,
+                                                                          list_for_recomm=user_list_total,
                                                                           num_neighbors=num_neighbors)
-            rmse = compute_rmse(user_lists[username], recommendations)
+            rmse = compute_rmse(user_list_total[username], recommendations)
+            print "          RMSE value for "+username+" is: "+str(rmse)
             if rmse != -1:
-                rmse_sum += compute_rmse(user_lists[username], recommendations)
+                rmse_sum += rmse
                 rmse_count += 1
     # Now compute the average, and check whether the new parameter is the new best one.
     avg_rmse = rmse_sum / rmse_count
@@ -85,6 +87,10 @@ def test_cf_system(num_neighbors, user_lists):
 
 if __name__ == '__main__':
     print "Starting training/testing phase for Collaborative Filtering RS"
+    # TODO metti il nome dell'user_item_json completo
+    complete_json_name = train_filename = os.path.join(definitions.FILE_DIR, "user_item_train_4.json")
+
+    user_item_complete = read_user_item_json(complete_json_name)
 
     for i in range(3, 4):
         print "-----------------------------------------------------------------------"
@@ -104,7 +110,7 @@ if __name__ == '__main__':
         for n in num_neighbors_values:
             print "     ------------------------------------------------------------------"
             print "     Trying #neighbors="+str(n)
-            avg_rmse = test_cf_system(n, training_user_lists)
+            avg_rmse = test_cf_system(n, training_user_lists, user_item_complete)
             if current_best_parameter == STILL_NO_BEST or avg_rmse < current_best_rmse:
                 current_best_parameter = n
                 current_best_rmse = avg_rmse
