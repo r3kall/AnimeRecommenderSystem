@@ -17,6 +17,7 @@ ANIME_ID_FIELD = 'anime_id'
 RATE_FIELD = 'rate'
 CURR_STATE_FIELD = 'curr_state'
 MEAN_RATE = 'mean_rate'
+LIST_FIELD = 'list'
 
 # Initialize the JSON as empty
 users_json = {}
@@ -38,8 +39,10 @@ def add_anime(username, anime_id, rate, curr_state):
 
     if users_json.get(username) is None:
         users_json[username] = {}
+    if users_json[username].get(LIST_FIELD) is None:
+        users_json[username][LIST_FIELD] = {}
 
-    users_json[username][anime_id] = anime_record
+    users_json[username][LIST_FIELD][anime_id] = anime_record
 
 
 def add_mean_rate(username, mean_rate):
@@ -64,18 +67,26 @@ def scrape_page(file_name):
         json_animes = soup.find_all('table', attrs={'data-items': True})
         x = json.loads(json_animes[0]['data-items'])
 
-        # counter = 0
-        # rate_sum = 0
+        counter = 0
+        rate_sum = 0
         for j in x:
             id = int(j['anime_url'][7:len(j['anime_url'])].split('/')[0])
             rate = int(j['score'])
             state = j['status']
             add_anime(username, id, rate, state)
-            # rate_sum += rate
-            # counter += 1
+            rate_sum += rate
+            counter += 1
 
-        # mean_rate = float(rate_sum) / float(counter)
-        # add_mean_rate(username, mean_rate)
+        # update mean rates
+        if rate_sum != 0:
+            users_json[username][MEAN_RATE] = float(rate_sum) / float(counter)
+        else:
+            if username in users_json.keys():
+                users_json[username][MEAN_RATE] = 0.
+            else:
+                users_json[username] = {}
+                users_json[username][LIST_FIELD] = {}
+                users_json[username][MEAN_RATE] = 0.
 
 
 def create_user_item_json():

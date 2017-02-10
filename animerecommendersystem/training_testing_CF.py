@@ -86,7 +86,7 @@ def test_cf_system(num_neighbors, user_lists):
 if __name__ == '__main__':
     print "Starting training/testing phase for Collaborative Filtering RS"
 
-    for i in range(0, 5):
+    for i in range(3, 4):
         print "-----------------------------------------------------------------------"
         print "Iteration #"+str(i)
         # To decide which parameter is the best one, we need to compare their results.

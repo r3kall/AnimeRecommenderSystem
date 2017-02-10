@@ -113,18 +113,18 @@ if __name__ == '__main__':
             valid_rate_counter_test = 0
 
             # update anime lists in jsons
-            for anime in user_item[user]:
+            for anime in user_item[user][LIST_FIELD]:
                 if anime in train:
-                    add_anime(user_item_json_train_i, user, anime, user_item[user][anime][RATE_FIELD],
-                              user_item[user][anime][CURR_STATE_FIELD])
-                    rate = user_item[user][anime][RATE_FIELD]
+                    add_anime(user_item_json_train_i, user, anime, user_item[user][LIST_FIELD][anime][RATE_FIELD],
+                              user_item[user][LIST_FIELD][anime][CURR_STATE_FIELD])
+                    rate = user_item[user][LIST_FIELD][anime][RATE_FIELD]
                     if rate != 0:
                         mean_rate_train += rate
                         valid_rate_counter_train += 1
                 else:
-                    add_anime(user_item_json_test_i, user, anime, user_item[user][anime][RATE_FIELD],
-                              user_item[user][anime][CURR_STATE_FIELD])
-                    rate = user_item[user][anime][RATE_FIELD]
+                    add_anime(user_item_json_test_i, user, anime, user_item[user][LIST_FIELD][anime][RATE_FIELD],
+                              user_item[user][LIST_FIELD][anime][CURR_STATE_FIELD])
+                    rate = user_item[user][LIST_FIELD][anime][RATE_FIELD]
                     if rate != 0:
                         mean_rate_test += rate
                         valid_rate_counter_test += 1
