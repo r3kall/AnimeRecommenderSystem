@@ -65,7 +65,7 @@ def test_cf_system(num_neighbors, user_lists, user_list_total):
     # We want to compute the average RMSE value for this training set. So we need an accumulator
     rmse_sum = 0
     rmse_count = 0
-    for username in training_user_lists.keys()[0:20]:
+    for username in training_user_lists.keys():
         print "          -------------------------------------------------------------"
         print "          Getting recommendations for user "+username
         # Pass the parameter we want to test
@@ -87,12 +87,11 @@ def test_cf_system(num_neighbors, user_lists, user_list_total):
 
 if __name__ == '__main__':
     print "Starting training/testing phase for Collaborative Filtering RS"
-    # TODO metti il nome dell'user_item_json completo
-    complete_json_name = train_filename = os.path.join(definitions.FILE_DIR, "user_item_train_4.json")
+    complete_json_name = train_filename = os.path.join(definitions.FILE_DIR, "user-item.json")
 
     user_item_complete = read_user_item_json(complete_json_name)
 
-    for i in range(3, 4):
+    for i in range(0, 1):
         print "-----------------------------------------------------------------------"
         print "Iteration #"+str(i)
         # To decide which parameter is the best one, we need to compare their results.
@@ -111,6 +110,7 @@ if __name__ == '__main__':
             print "     ------------------------------------------------------------------"
             print "     Trying #neighbors="+str(n)
             avg_rmse = test_cf_system(n, training_user_lists, user_item_complete)
+            print "     Average RMSE for n="+str(n)+" is "+str(avg_rmse)
             if current_best_parameter == STILL_NO_BEST or avg_rmse < current_best_rmse:
                 current_best_parameter = n
                 current_best_rmse = avg_rmse
@@ -119,5 +119,5 @@ if __name__ == '__main__':
         print "Best RMSE is "+str(current_best_rmse)
 
         # Take the best parameter and use it on the test set.
-        final_rmse = test_cf_system(current_best_parameter, testing_user_lists)
+        final_rmse = test_cf_system(current_best_parameter, testing_user_lists, user_list_total=user_item_complete)
         print "The RMSE value on the testing set is: "+str(final_rmse)
