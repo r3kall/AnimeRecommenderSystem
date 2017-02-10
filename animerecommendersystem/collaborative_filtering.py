@@ -37,6 +37,10 @@ DROPPED_RATE = 4
 WATCHING_RATE = 6
 ON_HOLD_RATE = 6
 
+# Get near neighbors
+AVG_NEAREST_DISTANCE = 0.65
+NEAR_RATIO = 1.1
+
 
 def compute_distance(username1, username2, user_item_matrix):
     # Take the list of animes for each user
@@ -84,9 +88,37 @@ def compute_distance(username1, username2, user_item_matrix):
     return distance
 
 
+def get_approx_neighbors(username, user_item_matrix, num_neighbors):
+    """
+        Basic idea: compute distance between 'username''s list and all other users, and pick the nearest ones.
+        => PROBLEM: TOO SLOW.
+        => SOLUTION: no need to pick the nearest one, but some near users will be still ok.
+    """
+    neighbors = defaultdict(float)
+    how_many_good = 0
+    for user2 in user_item_matrix.keys():
+        if user2 == username or user_item_matrix[user2].get('list') is None:
+            continue
+
+        distance = compute_distance(username, user2, user_item_matrix)
+        neighbors[user2] = distance
+
+        # If this user is close enough to our target, then we take him as a neighbor
+        if distance <= AVG_NEAREST_DISTANCE*NEAR_RATIO:
+            how_many_good += 1
+
+        if how_many_good == num_neighbors:
+            break
+    # Sort neighbors according to distance, and return them
+    sorted_neighbors = sorted(neighbors, key=neighbors.get, reverse=False)
+    return sorted_neighbors[0:num_neighbors]
+
+
 def get_neighbors(username, user_item_matrix, num_neighbors):
     """
     Basic idea: compute distance between 'username''s list and all other users, and pick the nearest ones.
+    => PROBLEM: TOO SLOW.
+    => SOLUTION: no need to pick the nearest one, but some near users will be still ok.
     :param username:
     :param user_item_matrix:
     :param num_neighbors:
@@ -106,8 +138,17 @@ def get_neighbors(username, user_item_matrix, num_neighbors):
             distances_dict[user2] = compute_distance(username, user2, user_item_matrix)
         """
     # Once we have all distances, sort the dict by value and return a list containing the usernames of the nearest ones.
-    distances_dict = sorted(distances_dict, key=distances_dict.get, reverse=False)
-    return distances_dict[0:num_neighbors]
+    sorted_neighbors = sorted(distances_dict, key=distances_dict.get, reverse=False)
+    """
+    print "Printing distances"
+    avg_distance = 0
+    for neigh in sorted_neighbors[0:num_neighbors]:
+        avg_distance += distances_dict[neigh]
+        print "distance: "+str(distances_dict[neigh])
+    avg_distance /= num_neighbors
+    print "################################ avg_distance="+str(avg_distance)
+    """
+    return sorted_neighbors[0:num_neighbors]
 
 
 def estimate_rate(neighbor_animes, anime):
@@ -130,19 +171,14 @@ def estimate_rate(neighbor_animes, anime):
 
 
 def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS, weights=NEIGHBORS_WEIGHTS,
-                        num_recom=NUM_RECOM, testing=False):
-    """
-    :param user_name:
-    :param user_item_matrix:
-    :param num_recom:
-    :param num_neighbors:
-    :param weights:
-    :param testing:
-    :return:
-    """
+                        num_recom=NUM_RECOM, testing=False, approx=True):
+
     user_list = user_item_matrix[user_name]
 
-    neighbors_list = get_neighbors(user_name, user_item_matrix, num_neighbors)
+    if approx:
+        neighbors_list = get_approx_neighbors(user_name, user_item_matrix, num_neighbors)
+    else:
+        neighbors_list = get_neighbors(user_name, user_item_matrix, num_neighbors)
 
     aggregate_rates_dict = defaultdict(float)
 
