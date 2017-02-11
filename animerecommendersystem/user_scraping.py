@@ -69,6 +69,7 @@ def scrape_page(file_name):
 
         counter = 0
         rate_sum = 0
+        positive_counter = 0
         for j in x:
             id = int(j['anime_url'][7:len(j['anime_url'])].split('/')[0])
             rate = int(j['score'])
@@ -76,17 +77,22 @@ def scrape_page(file_name):
             add_anime(username, id, rate, state)
             rate_sum += rate
             counter += 1
+            if rate >= 6:
+                positive_counter += 1
 
         # update mean rates
-        if rate_sum != 0:
+        if (rate_sum != 0) and (positive_counter >= 10):
             users_json[username][MEAN_RATE] = float(rate_sum) / float(counter)
         else:
+            users_json.pop(username, None)
+            '''
             if username in users_json.keys():
                 users_json[username][MEAN_RATE] = 0.
             else:
                 users_json[username] = {}
                 users_json[username][LIST_FIELD] = {}
                 users_json[username][MEAN_RATE] = 0.
+            '''
 
 
 def create_user_item_json():
@@ -102,6 +108,7 @@ def create_user_item_json():
     for hp in html_user_list:
         scrape_page(hp)
 
+    print "Number of relevant users:  %d" % len(users_json.keys())
     with open(definitions.JSON_USER_FILE, 'w') as fp:
         j = json.dump(users_json, fp)
 

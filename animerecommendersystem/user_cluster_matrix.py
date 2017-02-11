@@ -37,19 +37,11 @@ def read_user_item_json(filename):
     return None
 
 
-def ranking(dict_of_attributes, mean_rate):
+def ranking(dict_of_attributes):
     """This function return a value depending on values"""
     rate = dict_of_attributes['rate']
-    status = dict_of_attributes['curr_state']
-
-    # An item is valid if it is not in Planned status
-    if status != 6:
-        if rate > 0:
-            return rate, True
-        elif status == 4:  # if status = dropped
-            return max(int(mean_rate) // 2, 2), True
-        else:
-            return int(mean_rate), True
+    if rate > 0:
+        return float(rate), True
     return 0, False
 
 
@@ -64,7 +56,7 @@ def build_user_cluster_matrix(user_item_matrix,
 
     :return: dictionary (N x C)
     """
-    user_cluster_dict = dict()  # dictionary (username - cluster vector)
+    user_cluster_dict = dict()  # dictionary (username : cluster vector)
 
     '''
     This matrix is filled in the order of the users seen, and contains their
@@ -107,7 +99,8 @@ def build_user_cluster_matrix(user_item_matrix,
                 ranksum += r
 
         # weighted vector, avoid possible Nan values
-        user_cluster_vector = np.nan_to_num(user_cluster_vector / ranksum)
+        # user_cluster_vector = np.nan_to_num(user_cluster_vector / ranksum)
+        user_cluster_vector = user_cluster_vector / ranksum
 
         # build user-cluster matrices and dictionaries
         user_cluster_matrix[count_position] = user_cluster_vector
@@ -118,26 +111,3 @@ def build_user_cluster_matrix(user_item_matrix,
         count_position += 1
 
     return user_cluster_dict, user_cluster_matrix, user_cluster_indices
-
-
-def save_user_cluster_matrix(num_clusters=10):
-    user_item = read_user_item_json()
-    item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
-    item_cluster = item_cluster_matrix(item_feature, num_clusters)
-
-    print "Start building user-cluster matrix"
-    user_cluster_dict, user_cluster_matrix, user_cluster_indices = \
-        build_user_cluster_matrix(user_item, item_cluster, id_to_pos)
-
-    print "Start saving user-cluster matrix"
-    # save user_cluster_dict
-    np.save(definitions.USER_CLUSTER_DICT, user_cluster_dict)
-
-    # save user_cluster_matrix
-    np.save(definitions.USER_CLUSTER_MATRIX, user_cluster_matrix)
-
-    # save user_matrix_dict_indices
-    np.save(definitions.USER_CLUSTER_INDICES, user_cluster_indices)
-
-if __name__ == '__main__':
-    save_user_cluster_matrix()

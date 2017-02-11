@@ -66,9 +66,7 @@ def evaluate(user_item_matrix, neighbors):
                             pred_num += n[1] * (
                                 vrate - user_item_matrix[n[0]]['mean_rate']
                             )
-                        else:
-                            continue
-                        pred_dem += n[1]
+                            pred_dem += n[1]
 
                 if pred_dem == 0:
                     # print "\nNo item in neigh"
@@ -80,9 +78,11 @@ def evaluate(user_item_matrix, neighbors):
 
                 if prediction < 1.:
                     prediction = 1.
+                if prediction > 10.:
+                    prediction = 10.
 
-                mae_list.append(np.abs(prediction - attributes['rate']))
-                rmse_list.append((prediction - attributes['rate']) ** 2)
+                mae_list.append(np.abs(prediction - float(attributes['rate'])))
+                rmse_list.append((prediction - float(attributes['rate'])) ** 2)
                 # print "prediction:  %f \t true:  %d" % (prediction, attributes['rate'])
 
     not_found_ratio = 1. - (float(relevant_counter) / float(total_counter))
@@ -144,8 +144,8 @@ def compute_evaluation(C, K):
     test_rmse_list = []
 
     parameters = [
-        (C, 10), (C, 20), (C, 30), (C, 50), (C, 70), (C, 85), (C, 100),
-        (10, K), (25, K), (50, K), (75, K), (90, K), (100, K), (125, K)
+        (C, 10), (C, 20), (C, 35), (C, 50), (C, 70), (C, 85), (C, 100),
+        (11, K), (26, K), (41, K), (57, K), (71, K), (83, K), (97, K), (123, K), (171, K)
     ]
 
     min_rmse = 1000.
@@ -273,4 +273,4 @@ def draw(C, K):
 
 
 if __name__ == '__main__':
-    draw(60, 50)
+    draw(60, 30)
