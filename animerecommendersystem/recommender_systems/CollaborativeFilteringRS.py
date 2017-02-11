@@ -12,9 +12,10 @@ This files offers a recommendation system based on collaborative filtering techn
 Idea: cosine similarity
 In particolar, for each anime watched by both users, we should compute the product of rates.
 """
-from collections import defaultdict
-from utils import definitions
 import math
+from collections import defaultdict
+
+from animerecommendersystem.utils import definitions
 
 STD_NUM_RECOMM = 10
 AVG_NEAREST_DISTANCE = 0.50
