@@ -28,7 +28,7 @@ import math
 
 NUM_RECOM = 10
 NUM_NEIGHBORS = 5
-NEIGHBORS_WEIGHTS = [0.5, 0.4, 0.3, 0.2, 0.1]
+NEIGHBORS_WEIGHTS = [0.5, 0.4, 0.3, 0.2, 0.1, 0.1, 0.1]
 
 # Rate estimations
 COMPLETED_RATE = 7
@@ -38,7 +38,7 @@ WATCHING_RATE = 6
 ON_HOLD_RATE = 6
 
 # Get near neighbors
-AVG_NEAREST_DISTANCE = 0.65
+AVG_NEAREST_DISTANCE = 0.50
 NEAR_RATIO = 1.1
 
 
@@ -111,9 +111,17 @@ def get_approx_neighbors(username, user_item_matrix, num_neighbors):
             break
     # Sort neighbors according to distance, and return them
     sorted_neighbors = sorted(neighbors, key=neighbors.get, reverse=False)
-    return sorted_neighbors[0:num_neighbors]
+
+    # return a dict, so we have also the similarity as info
+    res = dict()
+    for i in sorted_neighbors[0:num_neighbors]:
+        # similarity
+        res[i] = 1-neighbors[i]
+        #print "Similarity "+str(res[i])
+    return res
 
 
+# Qua non c'e la modifica ma tanto non lo usiamo mai perche fa schifo
 def get_neighbors(username, user_item_matrix, num_neighbors):
     """
     Basic idea: compute distance between 'username''s list and all other users, and pick the nearest ones.
@@ -176,17 +184,19 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
     user_list = user_item_matrix[user_name]
 
     if approx:
-        neighbors_list = get_approx_neighbors(user_name, user_item_matrix, num_neighbors)
+        neighbors_dict = get_approx_neighbors(user_name, user_item_matrix, num_neighbors)
     else:
-        neighbors_list = get_neighbors(user_name, user_item_matrix, num_neighbors)
+        neighbors_dict = get_neighbors(user_name, user_item_matrix, num_neighbors)
 
-    aggregate_rates_dict = defaultdict(float)
+    predictions_rates_dict = defaultdict(float)
+    predictions_rates_num_dict = dict()
+    predictions_rates_den_dict = dict()
 
     if list_for_recomm is None:
         list_for_recomm = user_item_matrix
 
-    i = 0
-    for neighbor in neighbors_list:
+    # i = 0
+    for neighbor in neighbors_dict.keys():
         neighbor_animes = list_for_recomm[neighbor]
         # For each anime in neighbor_anime, check whether the user watched it. If not, aggregate its rate.
         if neighbor_animes.get('list') is not None:
@@ -204,18 +214,36 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
                 if good_for_recommend or good_for_testing:
                     # Then, it's good
                     neighbor_rate = neighbor_animes['list'][anime]['rate']
-                    if neighbor_rate == 0:
-                        neighbor_rate = estimate_rate(neighbor_animes, anime)
-
-                    aggregate_rates_dict[anime] = aggregate_rates_dict.get(anime, 0) + neighbor_rate*weights[i]
-
-        i += 1
-
+                    #if neighbor_rate == 0:
+                    #    neighbor_rate = estimate_rate(neighbor_animes, anime)
+                    # pick similarity from dict
+                    if neighbor_rate > 0:
+                        predictions_rates_num_dict[anime] = predictions_rates_num_dict.get(anime, 0) + \
+                                                        neighbors_dict[neighbor] * \
+                                                        (neighbor_rate - user_item_matrix[neighbor]['mean_rate'])
+                        predictions_rates_den_dict[anime] = predictions_rates_den_dict.get(anime, 0) + neighbors_dict[neighbor]
+        # i += 1
+    #print user_item_matrix[user_name]['mean_rate']
+    for anime in predictions_rates_num_dict.keys():
+        if predictions_rates_den_dict[anime] == 0:
+            predictions_rates_dict[anime] = user_item_matrix[user_name]['mean_rate']
+        else:
+            predictions_rates_dict[anime] = user_item_matrix[user_name]['mean_rate'] + \
+                                            (float(predictions_rates_num_dict[anime])/float(predictions_rates_den_dict[anime]))
+        if predictions_rates_dict[anime] < 1.:
+            predictions_rates_dict[anime] = 3.
+        elif predictions_rates_dict[anime] > 10.:
+            #print anime
+            #print user_name
+            #print "BUONGIORNISSIMOOOOO"
+            predictions_rates_dict[anime] = 10.
+        #else:
+            #print "OK"
     # Once we have all possible animes to recommend with the related aggregate weight, we have to pick the best ones.
-    sorted_animes = sorted(aggregate_rates_dict, key=aggregate_rates_dict.get, reverse=True)
+    sorted_animes = sorted(predictions_rates_dict, key=predictions_rates_dict.get, reverse=True)
     results = dict()
     for anime in sorted_animes[0:num_recom]:
-        results[anime] = aggregate_rates_dict[anime]
+        results[anime] = predictions_rates_dict[anime]
     return results
 
 

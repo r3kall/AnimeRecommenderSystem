@@ -65,7 +65,7 @@ def test_cf_system(num_neighbors, user_lists, user_list_total):
     # We want to compute the average RMSE value for this training set. So we need an accumulator
     rmse_sum = 0
     rmse_count = 0
-    for username in training_user_lists.keys():
+    for username in training_user_lists.keys()[0:1000]:
         print "          -------------------------------------------------------------"
         print "          Getting recommendations for user "+username
         # Pass the parameter we want to test
@@ -81,7 +81,10 @@ def test_cf_system(num_neighbors, user_lists, user_list_total):
                 rmse_sum += rmse
                 rmse_count += 1
     # Now compute the average, and check whether the new parameter is the new best one.
-    avg_rmse = rmse_sum / rmse_count
+    if rmse_count != 0:
+        avg_rmse = rmse_sum / rmse_count
+    else:
+        avg_rmse = -1
     return avg_rmse
 
 
@@ -91,7 +94,7 @@ if __name__ == '__main__':
 
     user_item_complete = read_user_item_json(complete_json_name)
 
-    for i in range(0, 1):
+    for i in range(3, 4):
         print "-----------------------------------------------------------------------"
         print "Iteration #"+str(i)
         # To decide which parameter is the best one, we need to compare their results.
