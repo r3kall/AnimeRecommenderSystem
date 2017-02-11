@@ -27,9 +27,10 @@ NOTE: testing=True means that we need to apply get_recommendations only on anime
 import math
 import os
 
-import definitions
-import collaborative_filtering
 from user_cluster_matrix import read_user_item_json
+
+import collaborative_filtering
+import definitions
 
 STILL_NO_BEST = -1
 # Define list of possible parameters

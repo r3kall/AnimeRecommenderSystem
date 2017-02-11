@@ -12,8 +12,8 @@ representation, using the Fuzzy C Means algorithm.
 import numpy as np
 import json
 
-import definitions
-from fuzzy_clustering.cmeans import cmeans
+import animerecommendersystem.definitions
+from animerecommendersystem.fuzzy_clustering.cmeans import cmeans
 
 
 def read_item_feature_json():
@@ -23,7 +23,7 @@ def read_item_feature_json():
 
     :return:  dictionary with pairs (anime id, list of binary feature)
     """
-    with open(definitions.JSON_FILE, 'r') as fp:
+    with open(animerecommendersystem.definitions.JSON_FILE, 'r') as fp:
         d = json.load(fp)
 
     if d is not None:

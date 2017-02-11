@@ -19,12 +19,12 @@ import urllib2
 import argparse
 from bs4 import BeautifulSoup
 
-import definitions
+import animerecommendersystem.definitions
 
-if not os.path.exists(definitions.FILE_DIR):
-    os.makedirs(definitions.FILE_DIR)
-if not os.path.exists(definitions.HTML_DIR):
-    os.makedirs(definitions.HTML_DIR)
+if not os.path.exists(animerecommendersystem.definitions.FILE_DIR):
+    os.makedirs(animerecommendersystem.definitions.FILE_DIR)
+if not os.path.exists(animerecommendersystem.definitions.HTML_DIR):
+    os.makedirs(animerecommendersystem.definitions.HTML_DIR)
 
 
 BASE_LIST_URL = "https://myanimelist.net/topanime.php?limit="
@@ -37,7 +37,7 @@ def download_links():
     print "\nStarting download links..."
     t0 = time.time()
     # open the link file in write mode
-    with io.open(definitions.LINKS_FILE, 'w', encoding='utf-8') as f:
+    with io.open(animerecommendersystem.definitions.LINKS_FILE, 'w', encoding='utf-8') as f:
         fifty_counter = 0  # url page counter (0 ... 50 ... 100 ... ecc)
         while True:  # until counter ends and an exception is raised
             time.sleep(0.5)  # prevents bad intentions
@@ -80,7 +80,7 @@ def download_html_files():
     counter = 0  # only for status monitoring reasons
 
     # read from the link file
-    with io.open(definitions.LINKS_FILE, 'r', encoding='utf-8') as links:
+    with io.open(animerecommendersystem.definitions.LINKS_FILE, 'r', encoding='utf-8') as links:
         for url in links:
             counter += 1
             if counter % 1000 == 0:
@@ -93,7 +93,7 @@ def download_html_files():
                 response = urllib2.urlopen(url)
                 # decode content in unicode (needed)
                 content = response.read().decode('utf-8', 'ignore')
-                html_file = os.path.join(definitions.HTML_DIR,
+                html_file = os.path.join(animerecommendersystem.definitions.HTML_DIR,
                                          title_tag + '.html')
                 with io.open(html_file, 'w', encoding='utf-8') as df:
                     df.write(content)  # save the HTML page
@@ -284,20 +284,20 @@ def create_item_feature_json():
     the item-feature matrix.
     """
     d = dict()  # data dictionary that will be saved in JSON
-    html_list = os.listdir(definitions.HTML_DIR)
+    html_list = os.listdir(animerecommendersystem.definitions.HTML_DIR)
 
     print "Generating JSON file..."
     t0 = time.time()
     # for each html file in the html folder
     for h in html_list:
         # get raw data
-        html_file = os.path.join(definitions.HTML_DIR, h)
+        html_file = os.path.join(animerecommendersystem.definitions.HTML_DIR, h)
         scraped = scrape_single_page(html_file, h)
         id, r = convert_item_features(scraped)  # convert in binary data
         # add the pair (id, list of binary feature) to the dictionary
         d[id] = r
 
-    with open(definitions.JSON_FILE, 'w') as fp:
+    with open(animerecommendersystem.definitions.JSON_FILE, 'w') as fp:
         j = json.dump(d, fp, sort_keys=True)
 
     t1 = time.time() - t0

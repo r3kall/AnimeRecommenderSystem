@@ -6,15 +6,14 @@ on fuzzy clustering. In other words, we want to tune our system in order to get
 results with the highest quality.
 """
 import os
-import time
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.neighbors import NearestNeighbors
 
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.neighbors import NearestNeighbors
+from user_cluster_matrix import read_user_item_json, build_user_cluster_matrix
 
 import definitions
-from user_cluster_matrix import read_user_item_json, build_user_cluster_matrix
-from item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
+from animerecommendersystem.data_processing.item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
 
 
 def k_neighbors(user_cluster_matrix, user_cluster_indices, k):

@@ -7,11 +7,13 @@ Once established the logical sets, for each couple train-test:
     - build a new user-item-json containig only testing items
     - build user-cluster-matrix and the other files of clustering from just user-item-json-training
 """
-import os
 import json
+import os
 import time
-import definitions
+
 from user_cluster_matrix import read_user_item_json
+
+import definitions
 
 # Constants
 ANIME_ID_FIELD = 'anime_id'

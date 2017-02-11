@@ -79,7 +79,8 @@ class CollaborativeFilteringRS:
         distance = 1 - similarity
         return distance
 
-    def estimate_rate(self, user_animes, anime):
+    @staticmethod
+    def estimate_rate(user_animes, anime):
         neighbor_rate = user_animes['mean_rate']
 
         if neighbor_rate == 0:

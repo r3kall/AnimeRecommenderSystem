@@ -15,11 +15,12 @@ values per user are computed as:
     item [status(i)].
 """
 
-import numpy as np
 import json
 
-import definitions
-from item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
+import numpy as np
+
+import animerecommendersystem.definitions
+from animerecommendersystem.data_processing.item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
 
 
 def read_user_item_json(filename):
@@ -131,13 +132,13 @@ def save_user_cluster_matrix(num_clusters=10):
 
     print "Start saving user-cluster matrix"
     # save user_cluster_dict
-    np.save(definitions.USER_CLUSTER_DICT, user_cluster_dict)
+    np.save(animerecommendersystem.definitions.USER_CLUSTER_DICT, user_cluster_dict)
 
     # save user_cluster_matrix
-    np.save(definitions.USER_CLUSTER_MATRIX, user_cluster_matrix)
+    np.save(animerecommendersystem.definitions.USER_CLUSTER_MATRIX, user_cluster_matrix)
 
     # save user_matrix_dict_indices
-    np.save(definitions.USER_CLUSTER_INDICES, user_cluster_indices)
+    np.save(animerecommendersystem.definitions.USER_CLUSTER_INDICES, user_cluster_indices)
 
 if __name__ == '__main__':
     save_user_cluster_matrix()

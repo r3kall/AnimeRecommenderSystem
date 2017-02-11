@@ -10,7 +10,7 @@ import time
 import json
 from bs4 import BeautifulSoup
 
-import definitions
+import animerecommendersystem.utils.definitions
 
 # Constants
 ANIME_ID_FIELD = 'anime_id'
@@ -57,7 +57,7 @@ def scrape_page(file_name):
     :param file_name: name of file containing a user anime list
     """
     # directory of users html pages
-    htmlfile = os.path.join(definitions.USERS_DIR, file_name)
+    htmlfile = os.path.join(animerecommendersystem.definitions.USERS_DIR, file_name)
 
     with open(htmlfile, 'r') as fh:
         username = file_name[:len(file_name) - 5]  # get username by filename
@@ -94,7 +94,7 @@ def create_user_item_json():
     This function create and save a JSON representation of
     the user-item matrix.
     """
-    html_user_list = os.listdir(definitions.USERS_DIR)
+    html_user_list = os.listdir(animerecommendersystem.definitions.USERS_DIR)
 
     print "Generating user-item JSON file..."
     t0 = time.time()
@@ -102,7 +102,7 @@ def create_user_item_json():
     for hp in html_user_list:
         scrape_page(hp)
 
-    with open(definitions.JSON_USER_FILE, 'w') as fp:
+    with open(animerecommendersystem.definitions.JSON_USER_FILE, 'w') as fp:
         j = json.dump(users_json, fp)
 
     t1 = time.time() - t0

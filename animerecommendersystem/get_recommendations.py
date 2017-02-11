@@ -1,10 +1,9 @@
+import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
-from user_cluster_matrix import read_user_item_json
-from bucket_sort_anime import sort_list
-
-import numpy as np
-import definitions
+from animerecommendersystem.utils.utils_functions import sort_list
+from animerecommendersystem.data_processing.user_cluster_matrix import read_user_item_json
+from animerecommendersystem.utils import definitions
 
 NUM_NEIGHBORS = 5
 
@@ -146,7 +145,6 @@ def get_recomm(user_name, user_item_matrix, k=10, exclude=True, how_to=FIRST_USE
 
     # For each neighbor, take some anime
     recom_list = list()
-    # TODO cycle on recomm tentatives --> 2 cases
 
     if how_to == FIRST_USER_FIRST:
         for neigh in neighbors_list:
@@ -164,7 +162,7 @@ def get_recomm(user_name, user_item_matrix, k=10, exclude=True, how_to=FIRST_USE
 
 
 if __name__ == '__main__':
-    user_item = read_user_item_json()
+    user_item = read_user_item_json("user-item.json")
     usernames = user_item.keys()
 
     readable_user_list = list()

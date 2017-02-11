@@ -26,9 +26,11 @@ NOTE: testing=True means that we need to apply get_recommendations only on anime
 """
 
 import math
-from user_cluster_matrix import read_user_item_json
-from collaborative_filtering import get_recommendations
+
 import numpy as np
+from user_cluster_matrix import read_user_item_json
+
+from collaborative_filtering import get_recommendations
 
 NUMBER_NEIGHBORS = [3, 5, 7]
 NEIGHBORS_WEIGHTS = [0.1, 0.2, 0.25]
