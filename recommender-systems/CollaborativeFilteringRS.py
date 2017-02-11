@@ -13,11 +13,16 @@ Idea: cosine similarity
 In particolar, for each anime watched by both users, we should compute the product of rates.
 """
 from collections import defaultdict
+from utils import definitions
 import math
 
 STD_NUM_RECOMM = 10
 AVG_NEAREST_DISTANCE = 0.50
 RELAX_RATIO = 1.1
+
+# Constants for vote prediction
+MAX_PREDICT_RATE = 10.
+MIN_PREDICT_RATE = 3.
 
 
 class CollaborativeFilteringRS:
@@ -50,7 +55,7 @@ class CollaborativeFilteringRS:
                 watched1 = True
                 user1_rate = user1_animes['list'][anime]['rate']
                 if user1_rate == 0:
-                    user1_rate = estimate_rate(user1_animes, anime)
+                    user1_rate = self.estimate_rate(user1_animes, anime)
 
                 square_sum_1 += user1_rate * user1_rate
 
@@ -59,7 +64,7 @@ class CollaborativeFilteringRS:
 
                 user2_rate = user2_animes['list'][anime]['rate']
                 if user2_rate == 0:
-                    user2_rate = estimate_rate(user2_animes, anime)
+                    user2_rate = self.estimate_rate(user2_animes, anime)
 
                 square_sum_2 += user2_rate * user2_rate
 
@@ -72,6 +77,24 @@ class CollaborativeFilteringRS:
         similarity = distance_numerator / distance_denominator
         distance = 1 - similarity
         return distance
+
+    def estimate_rate(self, user_animes, anime):
+        neighbor_rate = user_animes['mean_rate']
+
+        if neighbor_rate == 0:
+            anime_state = user_animes['list'][anime]['curr_state']
+            if anime_state == definitions.COMPLETED:
+                neighbor_rate = definitions.COMPLETED_RATE
+            elif anime_state == definitions.WATCHING:
+                neighbor_rate = definitions.WATCHING_RATE
+            elif anime_state == definitions.DROPPED:
+                neighbor_rate = definitions.DROPPED_RATE
+            elif anime_state == definitions.PLANNED:
+                neighbor_rate = definitions.PLANNED_RATE
+            elif anime_state == definitions.ON_HOLD:
+                neighbor_rate = definitions.ON_HOLD_RATE
+
+        return neighbor_rate
 
     def get_neighbors(self, user):
         if self.approx is True:
@@ -91,7 +114,7 @@ class CollaborativeFilteringRS:
             if user2 == user or self.users_anime_lists[user2].get('list') is None:
                 continue
 
-            distance = compute_distance(user, user2, self.users_anime_lists)
+            distance = self.compute_distance(user, user2)
             neighbors[user2] = distance
 
             # If this user is close enough to our target, then we take him as a neighbor
@@ -124,8 +147,40 @@ class CollaborativeFilteringRS:
         return sorted_neighbors[0:self.num_neighbors]
 
     def get_recommendations(self, user):
-        print "TODO"
 
         neighbors_dict = self.get_neighbors(user)
 
-        # TODO get anime
+        predictions_rates_dict = defaultdict(float)
+        predictions_rates_num_dict = dict()
+        predictions_rates_den_dict = dict()
+
+        user_animes = self.users_anime_lists[user]
+        for neighbor in neighbors_dict.keys():
+            neighbor_animes = self.users_anime_lists[neighbor]
+            for anime in neighbor_animes['list'].keys():
+                if anime not in user_animes['list'].keys():
+                    neighbor_rate = neighbor_animes['list'][anime]['rate']
+                    if neighbor_rate > 0:
+                        predictions_rates_num_dict[anime] = predictions_rates_num_dict.get(anime, 0) + \
+                                                            neighbors_dict[neighbor] * \
+                                                            (neighbor_rate - self.users_anime_lists[neighbor]['mean_rate'])
+                        predictions_rates_den_dict[anime] = predictions_rates_den_dict.get(anime, 0) + neighbors_dict[
+                            neighbor]
+
+        for anime in predictions_rates_num_dict.keys():
+            if predictions_rates_den_dict[anime] == 0:
+                predictions_rates_dict[anime] = self.users_anime_lists[user]['mean_rate']
+            else:
+                predictions_rates_dict[anime] = self.users_anime_lists[user]['mean_rate'] + \
+                                                (float(predictions_rates_num_dict[anime]) / float(
+                                                    predictions_rates_den_dict[anime]))
+            if predictions_rates_dict[anime] < MIN_PREDICT_RATE:
+                predictions_rates_dict[anime] = MIN_PREDICT_RATE
+            elif predictions_rates_dict[anime] > MAX_PREDICT_RATE:
+                predictions_rates_dict[anime] = MAX_PREDICT_RATE
+
+        sorted_animes = sorted(predictions_rates_dict, key=predictions_rates_dict.get, reverse=True)
+        results = dict()
+        for anime in sorted_animes[0:self.num_recommendations]:
+            results[anime] = predictions_rates_dict[anime]
+        return results
