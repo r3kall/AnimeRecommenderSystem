@@ -8,8 +8,9 @@ results with the highest quality.
 import os
 import time
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
-from scipy.spatial.distance import correlation
+
 
 import definitions
 from user_cluster_matrix import read_user_item_json, build_user_cluster_matrix
@@ -50,7 +51,7 @@ def evaluate(user_item_matrix, neighbors):
     mae_list = []
     rmse_list = []
 
-    for user in user_item_matrix.keys()[:1500]:
+    for user in user_item_matrix.keys():
         for item_id, attributes in user_item_matrix[user]['list'].iteritems():
             if attributes['rate'] != 0:
                 total_counter += 1
@@ -71,13 +72,14 @@ def evaluate(user_item_matrix, neighbors):
 
                 if pred_dem == 0:
                     # print "\nNo item in neigh"
-                    prediction = user_item_matrix[user]['mean_rate']
+                    # prediction = user_item_matrix[user]['mean_rate']
+                    continue
                 else:
                     prediction = user_item_matrix[user]['mean_rate'] + (pred_num / pred_dem)
                     relevant_counter += 1
 
                 if prediction < 1.:
-                    prediction = 3.
+                    prediction = 1.
 
                 mae_list.append(np.abs(prediction - attributes['rate']))
                 rmse_list.append((prediction - attributes['rate']) ** 2)
@@ -92,17 +94,17 @@ def fuzzy_k_fold_rmse(c=11, k=5):
 
     # these are the same for all iterations
     item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
-    t0 = time.time()
     item_cluster = item_cluster_matrix(item_feature, c)
-    '''
-    print "Time to compute Item-Cluster matrix with %d clusters:  %f seconds" % (
-        c, time.time() - t0
-    )
-    '''
+
     trn_mae_list = []
     trn_rmse_list = []
     trn_not_found_ratio_list = []
 
+    tst_mae_list = []
+    tst_rmse_list = []
+    tst_not_found_ratio_list = []
+
+    # TODO execute with 5 splits
     for i in range(2):
         trn_filename = os.path.join(definitions.FILE_DIR,
                                     "user_item_train_"+str(i)+".json")
@@ -110,7 +112,7 @@ def fuzzy_k_fold_rmse(c=11, k=5):
                                     "user_item_test_"+str(i)+".json")
 
         trn_user_item = read_user_item_json(trn_filename)
-        # tst_user_item = read_user_item_json(tst_filename)
+        tst_user_item = read_user_item_json(tst_filename)
 
         trn_user_cluster_dict, trn_user_cluster_matrix, trn_user_cluster_indices = \
             build_user_cluster_matrix(trn_user_item, item_cluster, id_to_pos)
@@ -118,44 +120,157 @@ def fuzzy_k_fold_rmse(c=11, k=5):
         neighs = k_neighbors(trn_user_cluster_matrix,
                              trn_user_cluster_indices,
                              k)
+
         trn_mae, trn_rmse, trn_not_found_ratio = evaluate(trn_user_item, neighs)
+        tst_mae, tst_rmse, tst_not_found_ratio = evaluate(tst_user_item, neighs)
 
         trn_mae_list.append(np.mean(trn_mae))
         trn_rmse_list.append(np.sqrt(np.mean(trn_rmse)))
         trn_not_found_ratio_list.append(trn_not_found_ratio)
-    return np.mean(trn_mae_list), np.mean(trn_rmse_list), np.mean(trn_not_found_ratio_list)
+
+        tst_mae_list.append(np.mean(tst_mae))
+        tst_rmse_list.append(np.sqrt(np.mean(tst_rmse)))
+        tst_not_found_ratio_list.append(tst_not_found_ratio)
+
+    return np.mean(trn_mae_list), np.mean(trn_rmse_list), np.mean(trn_not_found_ratio_list), \
+           np.mean(tst_mae_list), np.mean(tst_rmse_list), np.mean(tst_not_found_ratio_list)
 
 
-if __name__ == '__main__':
-    C = 47
-    K = 19
-    parameters = [(5, K), (5, K+3), (5, K+6),
-                  (18, K), (18, K+3), (18, K+6),
-                  (C, K), (C, K+3), (C, K+6),
-                  (C + 10, K), (C + 10, K + 3), (C + 10, K + 6),
-                  (C + 20, K), (C + 20, K+3), (C + 20, K+6),
-                  (C + 30, K), (C + 30, K + 3), (C + 30, K + 6),
-                  (C + 40, K), (C + 40, K + 3), (C + 40, K + 6),
-                  ]
+def compute_evaluation(C, K):
+
+    train_mae_list = []
+    train_rmse_list = []
+    test_mae_list = []
+    test_rmse_list = []
+
+    parameters = [
+        (C, 10), (C, 20), (C, 30), (C, 50), (C, 70), (C, 85), (C, 100),
+        (10, K), (25, K), (50, K), (75, K), (90, K), (100, K), (125, K)
+    ]
 
     min_rmse = 1000.
     target_c = 0
     target_k = 0
     for t in parameters:
         print "=" * 71
-        mae, rmse, ratio = fuzzy_k_fold_rmse(c=t[0], k=t[1])
-
         print "C = %d,  K = %d" % (t[0], t[1])
-        print "Not Found Ratio:  %f" % ratio
-        print "MAE:  %s" % str(mae)
-        print "RMSE:  %s" % str(rmse)
+        tr_mae, tr_rmse, tr_ratio, ts_mae, ts_rmse, ts_ratio = fuzzy_k_fold_rmse(c=t[0], k=t[1])
 
-        if rmse < min_rmse:
-            min_rmse = rmse
+        print "\nTraining Set"
+        print "Not Found Ratio:  %f" % tr_ratio
+        print "MAE:  %s" % str(tr_mae)
+        print "RMSE:  %s" % str(tr_rmse)
+        print "\nTest Set"
+        print "Not Found Ratio:  %f" % ts_ratio
+        print "MAE:  %s" % str(ts_mae)
+        print "RMSE:  %s" % str(ts_rmse)
+        print "\nMAE Training/Test difference:  %f" % (np.abs(tr_mae - ts_mae))
+        print "RMSE Training/Test difference:  %f" % (np.abs(tr_rmse - ts_rmse))
+
+        train_mae_list.append((t[0], t[1], tr_mae))
+        train_rmse_list.append((t[0], t[1], tr_rmse))
+        test_mae_list.append((t[0], t[1], ts_mae))
+        test_rmse_list.append((t[0], t[1], ts_rmse))
+
+        if ts_rmse < min_rmse:
+            min_rmse = ts_rmse
             target_c = t[0]
             target_k = t[1]
 
     print "=" * 71
-    print "Min RMSE:  %s" % str(min_rmse)
+    print "Min Test RMSE:  %s" % str(min_rmse)
     print "Target C:  %d" % target_c
     print "Target K:  %d" % target_k
+
+    return train_mae_list, train_rmse_list, test_mae_list, test_rmse_list
+
+
+def draw(C, K):
+    train_mae_list, train_rmse_list, test_mae_list, test_rmse_list = compute_evaluation(C, K)
+
+    mae_fixed_clusters_x = []
+    mae_fixed_clusters_y = []
+    rmse_fixed_clusters_x = []
+    rmse_fixed_clusters_y = []
+
+    mae_fixed_neighbors_x = []
+    mae_fixed_neighbors_y = []
+    rmse_fixed_neighbors_x = []
+    rmse_fixed_neighbors_y = []
+
+    for t in sorted(test_mae_list, key=lambda x : x[1]):
+        if t[0] == C:
+            mae_fixed_clusters_x.append(t[1])
+            mae_fixed_clusters_y.append(t[2])
+    for t in sorted(test_mae_list, key=lambda x: x[0]):
+        if t[1] == K:
+            mae_fixed_neighbors_x.append(t[0])
+            mae_fixed_neighbors_y.append(t[2])
+
+    for t in sorted(test_rmse_list, key=lambda x: x[1]):
+        if t[0] == C:
+            rmse_fixed_clusters_x.append(t[1])
+            rmse_fixed_clusters_y.append(t[2])
+    for t in sorted(test_rmse_list, key=lambda x: x[0]):
+        if t[1] == K:
+            rmse_fixed_neighbors_x.append(t[0])
+            rmse_fixed_neighbors_y.append(t[2])
+
+    # plot MAE with fixed clusters
+    plt.figure()
+    plt.plot(mae_fixed_clusters_x,
+             mae_fixed_clusters_y,
+             'r',
+             mae_fixed_clusters_x,
+             mae_fixed_clusters_y,
+             'rs', lw=2)
+    plt.ylabel("MAE")
+    plt.xlabel("number of neighbors")
+    plt.title("MAE with fixed number of fuzzy clusters")
+    plt.grid(True)
+
+    # plot RMSE with fixed clusters
+    plt.figure()
+    plt.plot(rmse_fixed_clusters_x,
+             rmse_fixed_clusters_y,
+             'k',
+             rmse_fixed_clusters_x,
+             rmse_fixed_clusters_y,
+             'ks', lw=2)
+
+    plt.ylabel("RMSE")
+    plt.xlabel("number of neighbors")
+    plt.title("RMSE with fixed number of fuzzy clusters")
+    plt.grid(True)
+
+    # plot MAE with fixed neighbors
+    plt.figure()
+    plt.plot(mae_fixed_neighbors_x,
+             mae_fixed_neighbors_y,
+             'r',
+             mae_fixed_neighbors_x,
+             mae_fixed_neighbors_y,
+             'rs', lw=2)
+    plt.ylabel("MAE")
+    plt.xlabel("number of clusters")
+    plt.title("MAE with fixed number of neighbors")
+    plt.grid(True)
+
+    # plot RMSE with fixed neighbors
+    plt.figure()
+    plt.plot(rmse_fixed_neighbors_x,
+             rmse_fixed_neighbors_y,
+             'r',
+             rmse_fixed_neighbors_x,
+             rmse_fixed_neighbors_y,
+             'rs', lw=2)
+    plt.ylabel("RMSE")
+    plt.xlabel("number of clusters")
+    plt.title("RMSE with fixed number of neighbors")
+    plt.grid(True)
+
+    plt.show()
+
+
+if __name__ == '__main__':
+    draw(60, 50)
