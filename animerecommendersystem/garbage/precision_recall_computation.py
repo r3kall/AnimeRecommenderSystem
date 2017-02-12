@@ -18,7 +18,7 @@ Where:
 import numpy as np
 from user_cluster_matrix import read_user_item_json
 
-from animerecommendersystem.get_recommendations import get_recomm
+from animerecommendersystem.garbage.get_recommendations import get_recomm
 
 RATE_THRESHOLD = 6
 

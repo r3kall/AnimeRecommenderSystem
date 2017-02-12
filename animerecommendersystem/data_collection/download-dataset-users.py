@@ -9,16 +9,16 @@ import json
 import time
 import urllib2
 from bs4 import BeautifulSoup
-import animerecommendersystem.definitions
+from animerecommendersystem.utils import definitions
 
 MIN_NUMBER_ANIME = 15  # Sampling and Selection of relevant users
 MIN_NUMBER_USERS = 10000
 
 
-if not os.path.exists(animerecommendersystem.definitions.FILE_DIR):
-    os.makedirs(animerecommendersystem.definitions.FILE_DIR)
-if not os.path.exists(animerecommendersystem.definitions.USERS_DIR):
-    os.makedirs(animerecommendersystem.definitions.USERS_DIR)
+if not os.path.exists(definitions.FILE_DIR):
+    os.makedirs(definitions.FILE_DIR)
+if not os.path.exists(definitions.USERS_DIR):
+    os.makedirs(definitions.USERS_DIR)
 
 # contains recently online users and search bar for users
 url = "https://myanimelist.net/users.php"
@@ -135,7 +135,7 @@ def download_user_lists(user_list):
     print "\nDownloading user lists..."
     download_count = 0
     for user in user_list:
-        filename = os.path.join(animerecommendersystem.definitions.USERS_DIR, user + ".html")
+        filename = os.path.join(definitions.USERS_DIR, user + ".html")
         attempts = 0
         while attempts < 5:
             try:
@@ -157,7 +157,7 @@ def download_user_lists(user_list):
 def download_dataset_users():
     """Wrapper for download the user dataset"""
     total_count = 0
-    excluded = os.listdir(animerecommendersystem.definitions.USERS_DIR)
+    excluded = os.listdir(definitions.USERS_DIR)
     for u in range(len(excluded)):
         excluded[u] = excluded[u][:-5]
     print "Already downloaded users:  %d" % len(excluded)
