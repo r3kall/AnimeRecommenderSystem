@@ -18,8 +18,9 @@ values per user are computed as:
 import json
 
 import numpy as np
+import os
 
-import animerecommendersystem.definitions
+from animerecommendersystem.utils import definitions
 from animerecommendersystem.data_processing.item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
 
 
@@ -122,7 +123,8 @@ def build_user_cluster_matrix(user_item_matrix,
 
 
 def save_user_cluster_matrix(num_clusters=10):
-    user_item = read_user_item_json()
+    file_name = train_filename = os.path.join(definitions.FILE_DIR, "user-item.json")
+    user_item = read_user_item_json(file_name)
     item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
     item_cluster = item_cluster_matrix(item_feature, num_clusters)
 
@@ -132,13 +134,13 @@ def save_user_cluster_matrix(num_clusters=10):
 
     print "Start saving user-cluster matrix"
     # save user_cluster_dict
-    np.save(animerecommendersystem.definitions.USER_CLUSTER_DICT, user_cluster_dict)
+    np.save(definitions.USER_CLUSTER_DICT, user_cluster_dict)
 
     # save user_cluster_matrix
-    np.save(animerecommendersystem.definitions.USER_CLUSTER_MATRIX, user_cluster_matrix)
+    np.save(definitions.USER_CLUSTER_MATRIX, user_cluster_matrix)
 
     # save user_matrix_dict_indices
-    np.save(animerecommendersystem.definitions.USER_CLUSTER_INDICES, user_cluster_indices)
+    np.save(definitions.USER_CLUSTER_INDICES, user_cluster_indices)
 
 if __name__ == '__main__':
     save_user_cluster_matrix()

@@ -20,9 +20,9 @@ def sort_list(view_list):
     buckets = dict()
 
     # PHASE #1: put the objects in the right bucket
-    for anime in view_list:
+    for anime in view_list['list']:
         # Check if it is the fist anime with that rate
-        anime_rate = view_list[anime]['rate']
+        anime_rate = view_list['list'][anime]['rate']
 
         if anime_rate not in buckets.keys():
             buckets[anime_rate] = list()

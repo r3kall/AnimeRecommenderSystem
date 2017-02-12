@@ -9,11 +9,12 @@ representation, using the Fuzzy C Means algorithm.
     2) Create the item-cluster matrix.
 """
 
-import numpy as np
 import json
 
-import animerecommendersystem.definitions
-from animerecommendersystem.fuzzy_clustering.cmeans import cmeans
+import animerecommendersystem.utils.definitions
+import numpy as np
+
+from animerecommendersystem.garbage.fuzzy_clustering.cmeans import cmeans
 
 
 def read_item_feature_json():
@@ -23,7 +24,7 @@ def read_item_feature_json():
 
     :return:  dictionary with pairs (anime id, list of binary feature)
     """
-    with open(animerecommendersystem.definitions.JSON_FILE, 'r') as fp:
+    with open(animerecommendersystem.utils.definitions.JSON_FILE, 'r') as fp:
         d = json.load(fp)
 
     if d is not None:

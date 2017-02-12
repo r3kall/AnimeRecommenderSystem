@@ -17,6 +17,7 @@ from collections import defaultdict
 
 from animerecommendersystem.utils import definitions
 
+STD_NUM_NEIGHBORS = 5
 STD_NUM_RECOMM = 10
 AVG_NEAREST_DISTANCE = 0.50
 RELAX_RATIO = 1.1
@@ -28,7 +29,8 @@ MIN_PREDICT_RATE = 3.
 
 class CollaborativeFilteringRS:
 
-    def __init__(self, users_anime_lists, num_neighbors, num_recommendations=STD_NUM_RECOMM, approx=True):
+    def __init__(self, users_anime_lists, num_neighbors=STD_NUM_NEIGHBORS,
+                 num_recommendations=STD_NUM_RECOMM, approx=True):
         self.users_anime_lists = users_anime_lists
         self.num_neighbors = num_neighbors
         self.num_recommendations = num_recommendations
