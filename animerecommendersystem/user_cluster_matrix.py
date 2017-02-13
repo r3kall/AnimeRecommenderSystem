@@ -93,7 +93,7 @@ def build_user_cluster_matrix(user_item_matrix,
             except KeyError:
                 continue
 
-            r, valid = ranking(values, user_item_matrix[username]['mean_rate'])
+            r, valid = ranking(values)
             if valid:
                 user_cluster_vector += item_cluster_matrix[pos, :] * r
                 ranksum += r
