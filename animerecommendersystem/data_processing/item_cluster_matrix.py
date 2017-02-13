@@ -11,10 +11,10 @@ representation, using the Fuzzy C Means algorithm.
 
 import json
 
-import animerecommendersystem.utils.definitions
 import numpy as np
 
-from animerecommendersystem.garbage.fuzzy_clustering.cmeans import cmeans
+import animerecommendersystem.utils.definitions
+from animerecommendersystem.fuzzy_clustering import cmeans
 
 
 def read_item_feature_json():
