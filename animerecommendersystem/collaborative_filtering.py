@@ -43,6 +43,9 @@ ON_HOLD_RATE = 6
 AVG_NEAREST_DISTANCE = 0.55
 NEAR_RATIO = 1.1
 
+# neighbors = defaultdict(dict)
+K = 7
+
 
 def compute_distance(username1, username2, user_item_matrix):
     # Take the list of animes for each user
@@ -90,13 +93,9 @@ def compute_distance(username1, username2, user_item_matrix):
     return distance
 
 
-neighbors = defaultdict(dict)
-K = 7
-
-
 def get_k_neighbors(username, user_item):
 
-    n_dict = neighbors.get(username, {})  # get the possible neighbors from the record
+    n_dict = opt_neighbors.get(username, {})  # get the possible neighbors from the record
 
     if len(n_dict.keys()) >= K:
         return n_dict  # if we have all the neighbors, return them
@@ -123,17 +122,17 @@ def get_k_neighbors(username, user_item):
     sorted_neighbors = sorted(distances_dict, key=distances_dict.get, reverse=False)[:remaining]
 
     for n in sorted_neighbors:
-        neighbors[username][n] = distances_dict[n]
-        if len(neighbors.get(n, {}).keys()) < K:
-            neighbors[n][username] = distances_dict[n]
+        opt_neighbors[username][n] = distances_dict[n]
+        if len(opt_neighbors.get(n, {}).keys()) < K:
+            opt_neighbors[n][username] = distances_dict[n]
 
-    return neighbors[username]
+    return opt_neighbors[username]
 
 
 def save_neighbors_dict():
     filename = os.path.join(definitions.FILE_DIR, 'neighbors.json')
     with open(filename, 'w') as f:
-        j = json.dump(neighbors, f, sort_key=True)
+        j = json.dump(opt_neighbors, f)
 
 
 def get_approx_neighbors(username, user_item_matrix, num_neighbors):
@@ -308,7 +307,15 @@ if __name__ == '__main__':
         print "-" * 71
         print "Username  %s" % str(u)
         print get_k_neighbors(u, users_lists)'''
-    users_lists = read_user_item_json(definitions.JSON_USER_FILE)
-    for u in users_lists.keys():
+    filename = os.path.join(definitions.FILE_DIR, "user_item_train_0.json")
+    users_lists = read_user_item_json(filename)
+
+    filename = os.path.join(definitions.FILE_DIR, "neighbors.json")
+    if os.path.exists(filename):
+        opt_neighbors = read_user_item_json(filename)
+    else:
+        opt_neighbors = defaultdict(dict)
+
+    for u in users_lists.keys()[5:10]:
         get_k_neighbors(u, users_lists)
     save_neighbors_dict()
