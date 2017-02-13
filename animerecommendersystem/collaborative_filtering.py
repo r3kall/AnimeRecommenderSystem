@@ -38,7 +38,7 @@ WATCHING_RATE = 6
 ON_HOLD_RATE = 6
 
 # Get near neighbors
-AVG_NEAREST_DISTANCE = 0.50
+AVG_NEAREST_DISTANCE = 0.55
 NEAR_RATIO = 1.1
 
 
@@ -84,8 +84,48 @@ def compute_distance(username1, username2, user_item_matrix):
     # At the end, use the values collected so far to compute the distance between users.
     distance_denominator = math.sqrt(square_sum_1) * math.sqrt(square_sum_2)
     similarity = distance_numerator/distance_denominator
-    distance = 1 - similarity
+    distance = 1. - similarity
     return distance
+
+
+neighbors = defaultdict(dict)
+K = 10
+
+
+def get_k_neighbors(username, user_item):
+
+    n_dict = neighbors.get(username, {})  # get the possible neighbors from the record
+
+    if len(n_dict.keys()) >= K:
+        return n_dict  # if we have all the neighbors, return them
+
+    remaining = K - len(n_dict.keys())  # number of neighbors to get
+    print "Remaining neighbors to get:  %d" % remaining
+    distances_dict = {}
+
+    how_many_good = 0
+
+    for u in user_item.keys():
+        if (u == username) or (u in n_dict.keys()) or (user_item[u].get('list') is None):
+            continue
+
+        distance = compute_distance(username, u, user_item)
+        distances_dict[u] = distance
+
+        if distance <= AVG_NEAREST_DISTANCE*NEAR_RATIO:
+            how_many_good += 1
+
+        if how_many_good == remaining:
+            break
+
+    sorted_neighbors = sorted(distances_dict, key=distances_dict.get, reverse=False)[:remaining]
+
+    for n in sorted_neighbors:
+        neighbors[username][n] = distances_dict[n]
+        if len(neighbors.get(n, {}).keys()) < K:
+            neighbors[n][username] = distances_dict[n]
+
+    return neighbors[username]
 
 
 def get_approx_neighbors(username, user_item_matrix, num_neighbors):
@@ -248,27 +288,14 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
 
 
 if __name__ == '__main__':
+    import os
     print "STARTING"
-    users_lists = read_user_item_json('user_item.json')
+    filename = os.path.join(definitions.FILE_DIR, 'user_item_train_0.json')
+    users_lists = read_user_item_json(filename)
     test_user_names = users_lists.keys()[0:50]
     # test_user_name = 'Lebbing'
 
-    for test_user_name in test_user_names:
-        print "-----------------------------------------------------------------------------"
-        starting_time = time.time()
-        recommendations = get_recommendations(test_user_name, users_lists)
-        required_time = time.time() - starting_time
-        print "Required time: " + str(required_time) + " seconds."
-        print "Recommendations (exclude=True): " + str(recommendations)
-
-        starting_time = time.time()
-        recommendations2 = get_recommendations(test_user_name, users_lists, testing=True)
-        required_time = time.time() - starting_time
-        print "Required time: " + str(required_time) + " seconds."
-        print "Recommendations(exclude=False): " + str(recommendations2)
-
-        recommendations = set(recommendations)
-        recommendations2 = set(recommendations2)
-        if recommendations != recommendations2:
-            print "E RENZIE KE FAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?????"
-        print test_user_name + "'s list: "+str(users_lists[test_user_name].keys())
+    for u in test_user_names:
+        print "-" * 71
+        print "Username  %s" % str(u)
+        print get_k_neighbors(u, users_lists)
