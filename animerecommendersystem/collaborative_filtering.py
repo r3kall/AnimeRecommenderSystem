@@ -23,6 +23,7 @@ import time
 import json
 import definitions
 from user_cluster_matrix import read_user_item_json
+import os
 
 from collections import defaultdict
 import math
@@ -231,7 +232,8 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
     user_list = user_item_matrix[user_name]
 
     if approx:
-        neighbors_dict = get_k_neighbors(user_name, user_item_matrix)
+        filename = os.path.join(definitions.FILE_DIR, 'neighbors.json')
+        neighbors_dict = read_user_item_json(filename)
     else:
         neighbors_dict = get_neighbors(user_name, user_item_matrix, num_neighbors)
 
@@ -295,7 +297,7 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
 
 
 if __name__ == '__main__':
-    import os
+    '''import os
     print "STARTING"
     filename = os.path.join(definitions.FILE_DIR, 'user_item_train_0.json')
     users_lists = read_user_item_json(filename)
@@ -305,4 +307,8 @@ if __name__ == '__main__':
     for u in test_user_names:
         print "-" * 71
         print "Username  %s" % str(u)
-        print get_k_neighbors(u, users_lists)
+        print get_k_neighbors(u, users_lists)'''
+    users_lists = read_user_item_json(definitions.JSON_USER_FILE)
+    for u in users_lists.keys():
+        get_k_neighbors(u, users_lists)
+    save_neighbors_dict()

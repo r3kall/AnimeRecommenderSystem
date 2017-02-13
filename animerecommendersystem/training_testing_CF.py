@@ -33,7 +33,7 @@ from user_cluster_matrix import read_user_item_json
 
 STILL_NO_BEST = -1
 # Define list of possible parameters
-num_neighbors_values = [3, 5, 7]
+num_neighbors_values = [5]
 
 
 def compute_rmse(user_animes, recommendations):
@@ -65,7 +65,7 @@ def test_cf_system(num_neighbors, user_lists, user_list_total):
     # We want to compute the average RMSE value for this training set. So we need an accumulator
     rmse_sum = 0
     rmse_count = 0
-    for username in training_user_lists.keys()[0:1000]:
+    for username in training_user_lists.keys()[0:10]:
         print "          -------------------------------------------------------------"
         print "          Getting recommendations for user "+username
         # Pass the parameter we want to test
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
     user_item_complete = read_user_item_json(complete_json_name)
 
-    for i in range(3, 4):
+    for i in range(0, 1):
         print "-----------------------------------------------------------------------"
         print "Iteration #"+str(i)
         # To decide which parameter is the best one, we need to compare their results.
