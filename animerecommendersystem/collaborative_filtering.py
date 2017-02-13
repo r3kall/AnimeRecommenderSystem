@@ -20,6 +20,7 @@ In particolar, for each anime watched by both users, we should compute the produ
 """
 
 import time
+import json
 import definitions
 from user_cluster_matrix import read_user_item_json
 
@@ -89,7 +90,7 @@ def compute_distance(username1, username2, user_item_matrix):
 
 
 neighbors = defaultdict(dict)
-K = 10
+K = 7
 
 
 def get_k_neighbors(username, user_item):
@@ -126,6 +127,12 @@ def get_k_neighbors(username, user_item):
             neighbors[n][username] = distances_dict[n]
 
     return neighbors[username]
+
+
+def save_neighbors_dict():
+    filename = os.path.join(definitions.FILE_DIR, 'neighbors.json')
+    with open(filename, 'w') as f:
+        j = json.dump(neighbors, f, sort_key=True)
 
 
 def get_approx_neighbors(username, user_item_matrix, num_neighbors):
@@ -224,7 +231,7 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
     user_list = user_item_matrix[user_name]
 
     if approx:
-        neighbors_dict = get_approx_neighbors(user_name, user_item_matrix, num_neighbors)
+        neighbors_dict = get_k_neighbors(user_name, user_item_matrix)
     else:
         neighbors_dict = get_neighbors(user_name, user_item_matrix, num_neighbors)
 
