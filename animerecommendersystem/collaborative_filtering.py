@@ -95,7 +95,9 @@ def compute_distance(username1, username2, user_item_matrix):
 
 def get_k_neighbors(username, user_item):
 
-    n_dict = opt_neighbors.get(username, {})  # get the possible neighbors from the record
+    n_dict = opt_neighbors.get(username, dict())  # get the possible neighbors from the record
+    if n_dict == {}:
+        opt_neighbors[username] = {}
 
     if len(n_dict.keys()) >= K:
         return n_dict  # if we have all the neighbors, return them
@@ -122,8 +124,11 @@ def get_k_neighbors(username, user_item):
     sorted_neighbors = sorted(distances_dict, key=distances_dict.get, reverse=False)[:remaining]
 
     for n in sorted_neighbors:
+        print opt_neighbors[username]
         opt_neighbors[username][n] = distances_dict[n]
         if len(opt_neighbors.get(n, {}).keys()) < K:
+            if opt_neighbors.get(n, {}) == {}:
+                opt_neighbors[n] = {}
             opt_neighbors[n][username] = distances_dict[n]
 
     return opt_neighbors[username]
@@ -313,9 +318,10 @@ if __name__ == '__main__':
     filename = os.path.join(definitions.FILE_DIR, "neighbors.json")
     if os.path.exists(filename):
         opt_neighbors = read_user_item_json(filename)
+        print opt_neighbors
     else:
         opt_neighbors = defaultdict(dict)
 
-    for u in users_lists.keys()[5:10]:
+    for u in users_lists.keys()[4:6]:
         get_k_neighbors(u, users_lists)
     save_neighbors_dict()
