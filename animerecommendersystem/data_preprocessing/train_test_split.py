@@ -10,8 +10,8 @@ Once established the logical sets, for each couple train-test:
 import os
 import json
 import time
-import definitions
-from user_cluster_matrix import read_user_item_json
+import animerecommendersystem.definitions
+from animerecommendersystem.user_cluster_matrix import read_user_item_json
 
 # Constants
 ANIME_ID_FIELD = 'anime_id'
@@ -29,7 +29,7 @@ def build_id_list():
     """
     t0 = time.time()
     res = list()
-    html_anime_list = os.listdir(definitions.HTML_DIR)
+    html_anime_list = os.listdir(animerecommendersystem.definitions.HTML_DIR)
     for anime_file in html_anime_list:
         res.append(anime_file[:len(anime_file)-5])
     print "Time to compute Item IDs list:  %f seconds" % (time.time() - t0)
@@ -91,7 +91,8 @@ if __name__ == '__main__':
     list_animes = build_id_list()
 
     # read complete json
-    user_item = read_user_item_json(definitions.JSON_USER_FILE)
+    user_item = read_user_item_json(
+        animerecommendersystem.definitions.JSON_USER_FILE)
 
     # for each partition
     for i in range(0, 2):
@@ -154,10 +155,10 @@ if __name__ == '__main__':
 
         # save on file
         filename_train = "user_item_train_"+str(i)+".json"
-        file_train = os.path.join(definitions.FILE_DIR, filename_train)
+        file_train = os.path.join(animerecommendersystem.definitions.FILE_DIR, filename_train)
 
         filename_test = "user_item_test_"+str(i)+".json"
-        file_test = os.path.join(definitions.FILE_DIR, filename_test)
+        file_test = os.path.join(animerecommendersystem.definitions.FILE_DIR, filename_test)
 
         with open(file_train, 'w') as fp:
             j = json.dump(user_item_json_train_i, fp)

@@ -15,9 +15,10 @@ Where:
 -   total number of recommendations is self-explaining.
 """
 
-from get_recommendations import get_recomm
-from user_cluster_matrix import read_user_item_json
 import numpy as np
+
+from animerecommendersystem.to_delete.get_recommendations import get_recomm
+from animerecommendersystem.user_cluster_matrix import read_user_item_json
 
 RATE_THRESHOLD = 6
 

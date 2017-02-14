@@ -21,8 +21,8 @@ In particolar, for each anime watched by both users, we should compute the produ
 
 import time
 import json
-import definitions
-from user_cluster_matrix import read_user_item_json
+import animerecommendersystem.definitions
+from animerecommendersystem.user_cluster_matrix import read_user_item_json
 import os
 
 from collections import defaultdict
@@ -130,7 +130,7 @@ def get_k_neighbors(username, user_item):
 
 
 def save_neighbors_dict():
-    filename = os.path.join(definitions.FILE_DIR, 'neighbors.json')
+    filename = os.path.join(animerecommendersystem.definitions.FILE_DIR, 'neighbors.json')
     with open(filename, 'w') as f:
         j = json.dump(opt_neighbors, f)
 
@@ -211,15 +211,15 @@ def estimate_rate(neighbor_animes, anime):
     # TODO Another way to estimate the rate could be based on using the mean_rate
     anime_state = neighbor_animes['list'][anime]['curr_state']
     neighbor_rate = 0
-    if anime_state == definitions.COMPLETED:
+    if anime_state == animerecommendersystem.definitions.COMPLETED:
         neighbor_rate = COMPLETED_RATE
-    elif anime_state == definitions.WATCHING:
+    elif anime_state == animerecommendersystem.definitions.WATCHING:
         neighbor_rate = WATCHING_RATE
-    elif anime_state == definitions.DROPPED:
+    elif anime_state == animerecommendersystem.definitions.DROPPED:
         neighbor_rate = DROPPED_RATE
-    elif anime_state == definitions.PLANNED:
+    elif anime_state == animerecommendersystem.definitions.PLANNED:
         neighbor_rate = PLANNED_RATE
-    elif anime_state == definitions.ON_HOLD:
+    elif anime_state == animerecommendersystem.definitions.ON_HOLD:
         neighbor_rate = ON_HOLD_RATE
 
     return neighbor_rate
@@ -231,7 +231,7 @@ def get_recommendations(user_name, user_item_matrix, num_neighbors=NUM_NEIGHBORS
     user_list = user_item_matrix[user_name]
 
     if approx:
-        filename = os.path.join(definitions.FILE_DIR, 'neighbors.json')
+        filename = os.path.join(animerecommendersystem.definitions.FILE_DIR, 'neighbors.json')
         neighbors_dict = read_user_item_json(filename)
     else:
         neighbors_dict = get_neighbors(user_name, user_item_matrix, num_neighbors)
@@ -307,10 +307,10 @@ if __name__ == '__main__':
         print "-" * 71
         print "Username  %s" % str(u)
         print get_k_neighbors(u, users_lists)'''
-    filename = os.path.join(definitions.FILE_DIR, "user_item_train_0.json")
+    filename = os.path.join(animerecommendersystem.definitions.FILE_DIR, "user_item_train_0.json")
     users_lists = read_user_item_json(filename)
 
-    filename = os.path.join(definitions.FILE_DIR, "neighbors.json")
+    filename = os.path.join(animerecommendersystem.definitions.FILE_DIR, "neighbors.json")
     if os.path.exists(filename):
         opt_neighbors = read_user_item_json(filename)
     else:

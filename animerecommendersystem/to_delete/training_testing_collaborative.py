@@ -26,7 +26,7 @@ NOTE: testing=True means that we need to apply get_recommendations only on anime
 """
 
 import math
-from user_cluster_matrix import read_user_item_json
+from animerecommendersystem.user_cluster_matrix import read_user_item_json
 from collaborative_filtering import get_recommendations
 import numpy as np
 

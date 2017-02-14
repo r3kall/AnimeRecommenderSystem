@@ -1,10 +1,10 @@
 from sklearn.neighbors import NearestNeighbors
 
-from user_cluster_matrix import read_user_item_json
-from bucket_sort_anime import sort_list
+from animerecommendersystem.user_cluster_matrix import read_user_item_json
+from animerecommendersystem.bucket_sort_anime import sort_list
 
 import numpy as np
-import definitions
+import animerecommendersystem.definitions
 
 NUM_NEIGHBORS = 5
 
@@ -130,9 +130,12 @@ def get_recomm(user_name, user_item_matrix, k=10, exclude=True, how_to=FIRST_USE
     :return: a list of animes that could (possibly) be interesting to him/her
     """
     # read from files computed in user_cluster_matrix.py
-    user_cluster_dict = np.load(definitions.USER_CLUSTER_DICT).item()
-    user_cluster_matrix = np.load(definitions.USER_CLUSTER_MATRIX)
-    user_cluster_indices = np.load(definitions.USER_CLUSTER_INDICES).item()
+    user_cluster_dict = np.load(
+        animerecommendersystem.definitions.USER_CLUSTER_DICT).item()
+    user_cluster_matrix = np.load(
+        animerecommendersystem.definitions.USER_CLUSTER_MATRIX)
+    user_cluster_indices = np.load(
+        animerecommendersystem.definitions.USER_CLUSTER_INDICES).item()
 
     # Invoke kNN on the matrix to get neighbors
     neighbors_list = get_neighbors(user_name, user_cluster_dict,

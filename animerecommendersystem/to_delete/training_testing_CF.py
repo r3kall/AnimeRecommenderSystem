@@ -27,9 +27,9 @@ NOTE: testing=True means that we need to apply get_recommendations only on anime
 import math
 import os
 
-import definitions
+import animerecommendersystem.definitions
 import collaborative_filtering
-from user_cluster_matrix import read_user_item_json
+from animerecommendersystem.user_cluster_matrix import read_user_item_json
 
 STILL_NO_BEST = -1
 # Define list of possible parameters
@@ -90,7 +90,8 @@ def test_cf_system(num_neighbors, user_lists, user_list_total):
 
 if __name__ == '__main__':
     print "Starting training/testing phase for Collaborative Filtering RS"
-    complete_json_name = train_filename = os.path.join(definitions.FILE_DIR, "user-item.json")
+    complete_json_name = train_filename = os.path.join(
+        animerecommendersystem.definitions.FILE_DIR, "user-item.json")
 
     user_item_complete = read_user_item_json(complete_json_name)
 
@@ -101,10 +102,12 @@ if __name__ == '__main__':
         current_best_parameter = STILL_NO_BEST
         current_best_rmse = STILL_NO_BEST
         # Get training set and testing set for this particular round
-        train_filename = os.path.join(definitions.FILE_DIR,
-                                      "user_item_train_"+str(i)+".json")
-        test_filename = os.path.join(definitions.FILE_DIR,
-                                     "user_item_test_"+str(i)+".json")
+        train_filename = os.path.join(
+            animerecommendersystem.definitions.FILE_DIR,
+                                      "user_item_train_" + str(i) +".json")
+        test_filename = os.path.join(
+            animerecommendersystem.definitions.FILE_DIR,
+                                     "user_item_test_" + str(i) +".json")
         training_user_lists = read_user_item_json(train_filename)
         testing_user_lists = read_user_item_json(test_filename)
 
