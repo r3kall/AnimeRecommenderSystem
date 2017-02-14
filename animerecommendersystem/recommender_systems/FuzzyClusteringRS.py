@@ -1,8 +1,7 @@
 from sklearn.neighbors import NearestNeighbors
 
 from animerecommendersystem.utils.utils_functions import sort_list
-from animerecommendersystem.data_processing.user_cluster_matrix import read_user_item_json
-from animerecommendersystem.utils import definitions
+from collections import defaultdict
 
 
 STD_NUM_RECOMM = 10
@@ -11,6 +10,10 @@ STD_NUM_NEIGHBORS = 5
 # Codes used for specifying the way we take recommendations from neighbors
 FIRST_USER_FIRST = 0
 ITERATIVE = 1
+
+# Constants for vote prediction
+MAX_PREDICT_RATE = 10.
+MIN_PREDICT_RATE = 3.
 
 
 class FuzzyCluseringRS:
@@ -29,17 +32,20 @@ class FuzzyCluseringRS:
         self.recommendations_list = list()
 
     def get_neighbors(self, user_name):
-        neigh = NearestNeighbors(n_neighbors=self.num_neighbors)
+        neigh = NearestNeighbors(n_neighbors=self.num_neighbors+1)
         neigh.fit(self.users_clusters_matrix)
 
         vector = self.users_clusters_dict[user_name]
         distances, indices = neigh.kneighbors(vector.reshape(1, -1))
 
-        nearest_neighbors_list = list()
-        for i in indices[0][1:]:
-            nearest_neighbors_list.append(self.users_clusters_indices[i])
+        nearest_neighbors_dict = defaultdict(float)
 
-        return nearest_neighbors_list
+        for i in range(1, self.num_neighbors+1):
+            user_index = indices[0][i]
+            similarity = 1 - distances[0][i]
+            nearest_neighbors_dict[self.users_clusters_indices[user_index]] = similarity
+
+        return nearest_neighbors_dict
 
     @staticmethod
     def get_num_recomm(i):
@@ -83,65 +89,47 @@ class FuzzyCluseringRS:
         # We arrive here only if the neighbor has not enough anime to suggest.
         return k
 
-    def iterative_get_recom(self, neighbors_list, user):
-        """
-        Support function for get_recom(), called if how_to is equal to ITERATIVE
-        :param neighbors_list: list of users 'close' to our client's target.
-        :param user: name of the user we want to recommend stuff to
-        :return: Nothing, but at the end self.recommendations_list will be a list of recommendations
-                 computed by taking some animes from each user (hopefully),
-                 and iterating on them if the stuff we took is insufficient.
-        """
-        current_recom_list = list()
-        previous_recom_list = list()
-
-        k = self.num_recommendations
-        while k > 0:
-            previous_recom_list = current_recom_list
-            i = 0
-            for neigh in neighbors_list:
-                # Example: if we need only 3 more animes (i.e., k=3), but by default we would take 4,
-                # we need to reduce how_many.
-                how_many = min(k, self.get_num_recomm(i))
-                remainder = self.get_recomm_from_user(how_many, neigh, user)
-                i += 1
-                k -= how_many - remainder
-                if k == 0:
-                    break
-
-            current_recom_list = self.recommendations_list
-            # If the last iteration did not add anything, there's no reason to keep iterating.
-            if current_recom_list == previous_recom_list:
-                break
-
     def get_recommendations(self, user):
         """
         :param user: Name of the user we want to give suggetions to
         :return: a list of animes that could (possibly) be interesting to him/her
         """
-        """
-        # read from files computed in user_cluster_matrix.py
-        user_cluster_dict = np.load(definitions.USER_CLUSTER_DICT).item()
-        user_cluster_matrix = np.load(definitions.USER_CLUSTER_MATRIX)
-        user_cluster_indices = np.load(definitions.USER_CLUSTER_INDICES).item()
-        """
 
         # Invoke kNN on the matrix to get neighbors
-        neighbors_list = self.get_neighbors(user)
+        neighbors_dict = self.get_neighbors(user)
 
-        user_anime_list = self.users_anime_lists[user].keys()
+        predictions_rates_dict = defaultdict(float)
+        predictions_rates_num_dict = dict()
+        predictions_rates_den_dict = dict()
 
-        # For each neighbor, take some anime
-        self.recommendations_list = list()
+        user_animes = self.users_anime_lists[user]
+        for neighbor in neighbors_dict.keys():
+            neighbor_animes = self.users_anime_lists[neighbor]
+            for anime in neighbor_animes['list'].keys():
+                if anime not in user_animes['list'].keys():
+                    neighbor_rate = neighbor_animes['list'][anime]['rate']
+                    if neighbor_rate > 0:
+                        predictions_rates_num_dict[anime] = predictions_rates_num_dict.get(anime, 0) + \
+                                                            neighbors_dict[neighbor] * \
+                                                            (neighbor_rate - self.users_anime_lists[neighbor][
+                                                                'mean_rate'])
+                        predictions_rates_den_dict[anime] = predictions_rates_den_dict.get(anime, 0) + neighbors_dict[
+                            neighbor]
 
-        if self.how_to == FIRST_USER_FIRST:
-            for neigh in neighbors_list:
-                k = self.get_recomm_from_user(self.num_recommendations, neigh, user)
-                if k == 0:
-                    break
+        for anime in predictions_rates_num_dict.keys():
+            if predictions_rates_den_dict[anime] == 0:
+                predictions_rates_dict[anime] = self.users_anime_lists[user]['mean_rate']
+            else:
+                predictions_rates_dict[anime] = self.users_anime_lists[user]['mean_rate'] + \
+                                                (float(predictions_rates_num_dict[anime]) / float(
+                                                    predictions_rates_den_dict[anime]))
+            if predictions_rates_dict[anime] < MIN_PREDICT_RATE:
+                predictions_rates_dict[anime] = MIN_PREDICT_RATE
+            elif predictions_rates_dict[anime] > MAX_PREDICT_RATE:
+                predictions_rates_dict[anime] = MAX_PREDICT_RATE
 
-        elif self.how_to == ITERATIVE:
-            self.iterative_get_recom(neighbors_list, user)
-
-        # Return them
-        return self.recommendations_list
+        sorted_animes = sorted(predictions_rates_dict, key=predictions_rates_dict.get, reverse=True)
+        results = dict()
+        for anime in sorted_animes[0:self.num_recommendations]:
+            results[anime] = predictions_rates_dict[anime]
+        return results

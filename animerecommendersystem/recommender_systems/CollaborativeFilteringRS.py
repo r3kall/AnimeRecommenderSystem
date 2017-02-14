@@ -148,7 +148,14 @@ class CollaborativeFilteringRS:
         # Once we have all distances, sort the dict by value and return a list containing
         # the usernames of the nearest ones.
         sorted_neighbors = sorted(distances_dict, key=distances_dict.get, reverse=False)
-        return sorted_neighbors[0:self.num_neighbors]
+        # return sorted_neighbors[0:self.num_neighbors]
+
+        # return a dict, so we have also the similarity as info
+        res = dict()
+        for neighbor in sorted_neighbors[0:self.num_neighbors]:
+            # similarity
+            res[neighbor] = 1 - distances_dict[neighbor]
+        return res
 
     def get_recommendations(self, user):
 
