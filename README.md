@@ -44,8 +44,8 @@ So a first naive approach is based on applying k-nearest neighbor
 on user-item matrix, and then using the ratings from those neighbors 
 to calculate predictions for the active user, with the following formula: <br/> 
 
-<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/rate_prediction_1.svg" align="middle"/> <br/><br/>
-<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/rate_prediction_2.svg"  align="middle"/> <br/><br/>
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/rate_prediction_1.png" align="middle"/> <br/><br/>
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/rate_prediction_2.png"  align="middle"/> <br/><br/>
 
 The recommendations are the animes with the highest predictions. <br/>
 However, this approach becomes really slow, especially if the system 
@@ -91,7 +91,7 @@ To evaluate the quality of our systems, we used:
 where n is the number of recommendations, y^<sub>t</sub> is the predicted rate, and y<sub>t</sub> is the real rate the user gave to the anime t.
 
 * the mean absolute error (MAE) measure, defined as: <br/>
-<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/MAE.svg" align="middle"/> <br/><br/>
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/MAE.png" align="middle"/> <br/><br/>
 where f<sub>i</sub> is the predicted rate for anime i, and y<sub>i</sub> is the real rate the user gave to it.
 
 These two measures were used during the training phase to decide 
