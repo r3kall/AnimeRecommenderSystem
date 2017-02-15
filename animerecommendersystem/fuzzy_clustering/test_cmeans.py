@@ -11,7 +11,7 @@ from os.path import dirname
 sys.path.append(dirname(dirname(__file__)))
 
 from cmeans import cmeans
-from item_cluster_matrix import build_item_feature_matrix
+from animerecommendersystem.data_processing.item_cluster_matrix import build_item_feature_matrix
 
 X, ind = build_item_feature_matrix()
 dim = X.shape[1]

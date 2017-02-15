@@ -13,7 +13,7 @@ import time
 
 from user_cluster_matrix import read_user_item_json
 
-import definitions
+from animerecommendersystem.utils import definitions
 
 # Constants
 ANIME_ID_FIELD = 'anime_id'
