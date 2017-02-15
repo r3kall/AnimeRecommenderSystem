@@ -44,8 +44,8 @@ So a first naive approach is based on applying k-nearest neighbor
 on user-item matrix, and then using the ratings from those neighbors 
 to calculate predictions for the active user, with the following formula: <br/> 
 
-<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/d2a94dc0a962bd32eda90d13806cc446f6dcc46c" alt="Drawing"width="180" height="350" align="middle"/> <br/><br/>
-<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ca896baefcaade46d3d20adb0ac63287ff9353e7  alt="Drawing"width="180" height="350" align="middle"/> <br/><br/>
+<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/d2a94dc0a962bd32eda90d13806cc446f6dcc46c" align="middle"/> <br/><br/>
+<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ca896baefcaade46d3d20adb0ac63287ff9353e7  align="middle"/> <br/><br/>
 
 The recommendations are the animes with the highest predictions. <br/>
 However, this approach becomes really slow, especially if the system 
@@ -87,11 +87,11 @@ user-cluster matrix, and get prediction using the same approach.
 **Evaluation Metrics and Tuning Step** <br/>
 To evaluate the quality of our systems, we used:
 * the root-mean-square error (RMSE) measure, defined as:
-<img src="http://statweb.stanford.edu/~susan/courses/s60/split/img29.png" alt="Drawing"width="180" height="350" align="middle"/> <br/><br/>
+<img src="http://statweb.stanford.edu/~susan/courses/s60/split/img29.png" align="middle"/> <br/><br/>
 where n is the number of recommendations, y^<sub>t</sub> is the predicted rate, and y<sub>t</sub> is the real rate the user gave to the anime t.
 
 * the mean absolute error (MAE) measure, defined as:
-<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/a26cd07ce591210dc494cec532c4dacfdf9153b9" alt="Drawing"width="180" height="350" align="middle"/> <br/><br/>
+<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/a26cd07ce591210dc494cec532c4dacfdf9153b9" align="middle"/> <br/><br/>
 where f<sub>i</sub> is the predicted rate for anime i, and y<sub>i</sub> is the real rate the user gave to it.
 
 These two measures were used during the training phase to decide 
