@@ -11,7 +11,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 
-
 from animerecommendersystem.utils import definitions
 from animerecommendersystem.data_processing.user_cluster_matrix import read_user_item_json, build_user_cluster_matrix
 from animerecommendersystem.data_processing.item_cluster_matrix import build_item_feature_matrix, item_cluster_matrix
@@ -143,10 +142,11 @@ def compute_evaluation(C, K):
     test_mae_list = []
     test_rmse_list = []
 
-    parameters = [
+    '''parameters = [
         (C, 3), (C, 5), (C, 10), (C, 20), (C, 35), (C, 50), (C, 70), (C, 85), (C, 100),
         (11, K), (26, K), (41, K), (57, K), (71, K), (83, K), (97, K), (123, K), (171, K)
-    ]
+    ]'''
+    parameters = [(60, 5000)]
 
     min_rmse = 1000.
     target_c = 0
@@ -273,4 +273,4 @@ def draw(C, K):
 
 
 if __name__ == '__main__':
-    draw(60, 12)
+    draw(60, 5000)

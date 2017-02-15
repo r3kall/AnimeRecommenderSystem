@@ -96,7 +96,7 @@ if __name__ == '__main__':
     user_item = read_user_item_json(definitions.JSON_USER_FILE)
 
     # for each partition
-    for i in range(0, 2):
+    for i in range(2, 5):
         print "Partition " + str(i)
         t0 = time.time()
 
