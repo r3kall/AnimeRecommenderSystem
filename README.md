@@ -1,5 +1,5 @@
-<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/sapienza_logo.png" width="135" height="100" align="middle"/>
 # Anime Recommender System
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/sapienza_logo.png" width="135" height="100" align="middle"/>
 
 **Sapienza - Università di Roma** <br/>
 *Master of Science in Engineering in Computer Science* <br/>

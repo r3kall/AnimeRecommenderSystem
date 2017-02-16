@@ -2,7 +2,7 @@
 **Sapienza - Università di Roma** <br/>
 *Master of Science in Engineering in Computer Science* <br/>
 *Data Mining, a.y. 2016-17* <br/>
-
+---
 This package contains two scripts used to collect our dataset:
 * download-dataset_users.py, used to download users;
 * download-dataset-anime.py, used to download data about animes.
