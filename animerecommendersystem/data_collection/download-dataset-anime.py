@@ -284,6 +284,7 @@ def create_item_feature_json():
     the item-feature matrix.
     """
     d = dict()  # data dictionary that will be saved in JSON
+    utility = dict()  # information dictionary about titles and links
     html_list = os.listdir(definitions.HTML_DIR)
 
     print "Generating JSON file..."
@@ -296,9 +297,13 @@ def create_item_feature_json():
         id, r = convert_item_features(scraped)  # convert in binary data
         # add the pair (id, list of binary feature) to the dictionary
         d[id] = r
+        # add the pair (id, tuple of: title, image link)
+        utility[id] = (scraped['title'], scraped['image_link'])
 
     with open(definitions.JSON_FILE, 'w') as fp:
         j = json.dump(d, fp, sort_keys=True)
+    with open(definitions.UTILITY_FILE, 'w') as fu:
+        u = json.dump(utility, fu, sort_keys=True)
 
     t1 = time.time() - t0
     print "JSON file completed in:  %s" % str(t1)

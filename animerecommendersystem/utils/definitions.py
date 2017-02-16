@@ -13,6 +13,7 @@ USERS_DIR = os.path.join(FILE_DIR, 'users')
 # Files
 LINKS_FILE = os.path.join(FILE_DIR, 'link-list.txt')
 JSON_FILE = os.path.join(FILE_DIR, 'item-feature.json')
+UTILITY_FILE = os.path.join(FILE_DIR, 'utility.json')
 JSON_USER_FILE = os.path.join(FILE_DIR, 'user-item.json')
 USER_CLUSTER_DICT = os.path.join(FILE_DIR, 'user-cluster-dict.npy')
 USER_CLUSTER_MATRIX = os.path.join(FILE_DIR, 'user-cluster-matrix.npy')

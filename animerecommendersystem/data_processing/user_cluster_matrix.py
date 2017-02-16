@@ -122,9 +122,8 @@ def build_user_cluster_matrix(user_item_matrix,
     return user_cluster_dict, user_cluster_matrix, user_cluster_indices
 
 
-def save_user_cluster_matrix(num_clusters=10):
-    file_name = train_filename = os.path.join(definitions.FILE_DIR, "user-item.json")
-    user_item = read_user_item_json(file_name)
+def save_user_cluster_matrix(num_clusters=61):
+    user_item = read_user_item_json(definitions.JSON_USER_FILE)
     item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
     item_cluster = item_cluster_matrix(item_feature, num_clusters)
 

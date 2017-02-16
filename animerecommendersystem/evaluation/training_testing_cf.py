@@ -50,8 +50,7 @@ def build_user_item_sparse_matrix(filename):
 def k_neighbors(sparse_matrix, k):
     # create the k-neighbors unsupervised model
     model = NearestNeighbors(n_neighbors=k+1, metric='cosine',
-                             algorithm='brute', leaf_size=30,
-                             n_jobs=1)
+                             algorithm='brute', n_jobs=1)
 
     model.fit(sparse_matrix)  # train the model
 
@@ -111,8 +110,7 @@ def cf_k_fold_rmse(k=5):
     """Perform k-fold cross validation, with k=5"""
 
     # these are the same for all iterations
-    item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
-
+    # item_feature, pos_to_id, id_to_pos = build_item_feature_matrix()
 
     trn_mae_list = []
     trn_rmse_list = []
@@ -130,32 +128,36 @@ def cf_k_fold_rmse(k=5):
                                     "user_item_test_"+str(i)+".json")
 
         trn_user_item_sparse, trn_mean_rates = build_user_item_sparse_matrix(trn_filename)
-
+        t0 = time.time()
         distances, indices = k_neighbors(trn_user_item_sparse, k)
+        print "Iteration %d, time to compute neighbors:  %f seconds" % (i, time.time() - t0)
 
+        """
         trn_mae, trn_rmse, trn_not_found_ratio = evaluate(
             trn_user_item_sparse, indices, distances, trn_mean_rates)
 
         del trn_user_item_sparse
         del trn_mean_rates
         print "First Evaluation done, iteration %d" % i
+        """
 
         tst_user_item_sparse, tst_mean_rates = build_user_item_sparse_matrix(tst_filename)
 
+        """
         tst_mae, tst_rmse, tst_not_found_ratio = evaluate(
             tst_user_item_sparse, indices, distances, tst_mean_rates)
+        """
 
-        del tst_user_item_sparse
-        del tst_mean_rates
-        print "Second Evaluation done, iteration %d" % i
+        # del tst_user_item_sparse
+        # del tst_mean_rates
 
-        trn_mae_list.append(np.mean(trn_mae))
-        trn_rmse_list.append(np.sqrt(np.mean(trn_rmse)))
-        trn_not_found_ratio_list.append(trn_not_found_ratio)
+        trn_mae_list.append(np.mean([1, 2]))
+        trn_rmse_list.append(np.sqrt(np.mean([1, 2])))
+        trn_not_found_ratio_list.append(0.1)
 
-        tst_mae_list.append(np.mean(tst_mae))
-        tst_rmse_list.append(np.sqrt(np.mean(tst_rmse)))
-        tst_not_found_ratio_list.append(tst_not_found_ratio)
+        tst_mae_list.append(np.mean([1, 2]))
+        tst_rmse_list.append(np.sqrt(np.mean([1, 2])))
+        tst_not_found_ratio_list.append(0.1)
 
     return np.mean(trn_mae_list), np.mean(trn_rmse_list), np.mean(trn_not_found_ratio_list), \
            np.mean(tst_mae_list), np.mean(tst_rmse_list), np.mean(tst_not_found_ratio_list)
@@ -169,6 +171,7 @@ def compute_evaluation():
     test_rmse_list = []
 
     parameters = [3, 5, 7, 10, 30, 50, 75, 100]
+    parameters = [1000, 2000, 5000]
 
     min_rmse = 1000.
     target_k = 0
@@ -178,10 +181,12 @@ def compute_evaluation():
         print "K = %d" % t
         tr_mae, tr_rmse, tr_ratio, ts_mae, ts_rmse, ts_ratio = cf_k_fold_rmse(k=t)
 
+        """
         print "\nTraining Set"
         print "Not Found Ratio:  %f" % tr_ratio
         print "MAE:  %s" % str(tr_mae)
         print "RMSE:  %s" % str(tr_rmse)
+        """
         print "\nTest Set"
         print "Not Found Ratio:  %f" % ts_ratio
         print "MAE:  %s" % str(ts_mae)
@@ -189,8 +194,6 @@ def compute_evaluation():
         print "\nMAE Training/Test difference:  %f" % (np.abs(tr_mae - ts_mae))
         print "RMSE Training/Test difference:  %f" % (np.abs(tr_rmse - ts_rmse))
 
-        train_mae_list.append(tr_mae)
-        train_rmse_list.append(tr_rmse)
         test_mae_list.append(ts_mae)
         test_rmse_list.append(ts_rmse)
 
@@ -202,12 +205,11 @@ def compute_evaluation():
     print "Min Test RMSE:  %s" % str(min_rmse)
     print "Target K:  %d" % target_k
 
-    return train_mae_list, train_rmse_list, test_mae_list, test_rmse_list, parameters
+    return test_mae_list, test_rmse_list, parameters
 
 
 def draw():
-    train_mae_list, train_rmse_list, test_mae_list, test_rmse_list, p = compute_evaluation()
-
+    test_mae_list, test_rmse_list, p = compute_evaluation()
     # plot MAE with fixed clusters
     plt.figure()
     plt.plot(p,
