@@ -131,7 +131,7 @@ we also considered very high values for K, even though they would not be practic
 * Focusing on the recommender system based on fuzzy clustering, 
 we can notice that the more the clusters we use, the better the score we get. 
 However, we think the improvement we get moving from, for instance, 
-K=60 to K=171 (i.e., if K is equal to the total number of features).
+K=60 to K=171.
 * The Fuzzy Clustering technique is faster than the Collaborative Filtering one: 
 we can notice a basically constant improvement of about 4 seconds, 
 which is independent from the number of neighbors considered. 
