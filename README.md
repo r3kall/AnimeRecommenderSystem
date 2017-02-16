@@ -102,7 +102,33 @@ we performed training on the number of neighbors used to compute
  we tuned the number of clusters too.
  
 **Graph and Tables** <br/>
-TODO
+*Collaborative Filtering vs Fuzzy Clustering - Tuning number of neighbors*<br/>
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/cf_fc_MAE.png" align="middle"/> <br/><br/>
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/cf_fc_RMSE.png" align="middle"/> <br/><br/>
+
+*Fuzzy Clustering - Tuning number of clusters*<br/>
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/Clusters_tuning_MAE.png" align="middle"/> <br/><br/>
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/Clusters_tuning_RMSE.png" align="middle"/> <br/><br/>
+
+The graphs reported above show us three important facts:
+* The Recommender System based on Collaborative Filtering is slightly more accurate
+ in average than the one based on Fuzzy Clustering. 
+* The quality of the recommendations improves with a high number of neighbors K. 
+In particular, results show that it improves for values of K up to 1000, 
+then remains basically constant for values of K up to 5000, 
+where it starts to slightly decrease. For completeness, 
+we also considered very high values for K, even though they would not be practical
+ (K=5000 would be not a good choice, especially for a system with a dataset 
+ of about 10’000 users). 
+ For example, in the recommender system based on collaborative filtering, 
+ the quality improvement we get moving from K=50 (RMSE=1.282) 
+ to K=5000 (RMSE=1.238) probably does not justify the increase 
+ of required time to answer to queries.
+* Focusing on the recommender system based on fuzzy clustering, 
+we can notice that the more the clusters we use, the better the score we get. 
+However, we think the improvement we get moving from, for instance, 
+K=60 to K=171 (i.e., if K is equal to the total number of features).
+
 
 **Conclusions** <br/>
 To measure the similarity between users we used the cosine similarity between their rating vectors. In both systems it proved to be better than Pearson similarity.
