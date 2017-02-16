@@ -195,3 +195,4 @@ veterini.1536622@studenti.uniroma1.it, and rutigliano.1449848@studenti.uniroma1.
 [here](https://www.linkedin.com/in/lorenzo-rutigliano-00a007135/) 
 and [here](https://www.linkedin.com/in/roberto-gaudenzi-4b0422116).
 * [Link to the Data Mining class web page](http://aris.me/index.php/data-mining-2016).<br/>
+* [Fuzzy Clustering](https://en.wikipedia.org/wiki/Fuzzy_clustering#Fuzzy_C-means_Clustering)
