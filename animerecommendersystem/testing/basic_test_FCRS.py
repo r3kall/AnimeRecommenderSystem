@@ -4,6 +4,7 @@ from animerecommendersystem.utils import definitions
 from animerecommendersystem.data_processing import user_cluster_matrix
 
 import numpy as np
+import webbrowser
 import timeit
 import json
 import os
@@ -40,9 +41,11 @@ def print_html_page(user, recommendations, utility):
 
     message = header + title + s + footer
 
-    f = io.open('rec.html', 'w', encoding='utf-8')
+    filename = 'rec.html'
+    f = io.open(filename, 'w', encoding='utf-8')
     f.write(message)
     f.close()
+    webbrowser.open_new_tab(filename)
 
 
 if __name__ == '__main__':
@@ -64,10 +67,9 @@ if __name__ == '__main__':
                                               users_clusters_dict, users_clusters_indices)
 
     e1 = np.random.randint(len(users_clusters_indices.keys()))
-    e2 = np.random.randint(len(users_clusters_indices.keys()))
 
-    print "[Username examples:  %s , %s]" % (users_clusters_indices[e1],
-                                             users_clusters_indices[e2])
+    print "[Username examples:  %s , %s]" % ('RaiZero',
+                                             users_clusters_indices[e1])
     user = raw_input("Insert username:  ")
     start = timeit.default_timer()
     recommendations = fcrs.get_recommendations(user)
