@@ -1,5 +1,6 @@
 # Anime Recommender System
-<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/sapienza_logo.png" align="middle"/>
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/sapienza_logo.png" width="135" height="100" align="middle"/>
+
 **Sapienza - Università di Roma** <br/>
 *Master of Science in Engineering in Computer Science* <br/>
 *Data Mining, a.y. 2016-17* <br/>
@@ -104,15 +105,25 @@ we performed training on the number of neighbors used to compute
  
 **Graph and Tables** <br/>
 *Collaborative Filtering vs Fuzzy Clustering - Tuning number of neighbors*<br/>
+The following tests have been made using a fixed number of clusters (60)
+for the recommender system based on fuzzy clustering.<br/>
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/cf_fc_MAE.png" align="middle"/> <br/><br/>
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/cf_fc_RMSE.png" align="middle"/> <br/><br/>
 
 *Fuzzy Clustering - Tuning number of clusters*<br/>
+The following tests have been made using a fixed number of neighbors (12)
+for the recommender system based on fuzzy clustering.<br/>
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/Clusters_tuning_MAE.png" align="middle"/> <br/><br/>
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/Clusters_tuning_RMSE.png" align="middle"/> <br/><br/>
 
 *Collaborative Filtering vs Fuzzy Clustering - Average computation time*
+The following tests have been made using a machine with the following characteristics:
+* Operating System: 
+* CPU: 
+* RAM: 
+
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/time_comparison.png" align="middle"/> <br/><br/>
+
 
 
 The graphs reported above show us three important facts:
@@ -155,6 +166,7 @@ better than the other one.
 * If you have questions, you can find us at gaudenzi.1527361@studenti.uniroma1.it, 
 veterini.1536622@studenti.uniroma1.it, and rutigliano.1449848@studenti.uniroma1.it. 
 * You can also find us on Linkedin 
-[here](https://www.linkedin.com/in/sara-veterini-667684116/) 
+[here](https://www.linkedin.com/in/sara-veterini-667684116/), 
+[here](https://www.linkedin.com/in/lorenzo-rutigliano-00a007135/) 
 and [here](https://www.linkedin.com/in/roberto-gaudenzi-4b0422116).
 * [Link to the Data Mining class web page](http://aris.me/index.php/data-mining-2016).<br/>
