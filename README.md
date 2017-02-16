@@ -1,5 +1,5 @@
-# Anime Recommender System
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/sapienza_logo.png" width="135" height="100" align="middle"/>
+# Anime Recommender System
 
 **Sapienza - Università di Roma** <br/>
 *Master of Science in Engineering in Computer Science* <br/>
@@ -118,9 +118,9 @@ for the recommender system based on fuzzy clustering.<br/>
 
 *Collaborative Filtering vs Fuzzy Clustering - Average computation time*
 The following tests have been made using a machine with the following characteristics:
-* Operating System: 
-* CPU: 
-* RAM: 
+* Operating System: Ubuntu 16.04 64 bit
+* CPU: Intel i5-4570
+* RAM: 8 GB
 
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/time_comparison.png" align="middle"/> <br/><br/>
 
