@@ -132,7 +132,12 @@ we also considered very high values for K, even though they would not be practic
 we can notice that the more the clusters we use, the better the score we get. 
 However, we think the improvement we get moving from, for instance, 
 K=60 to K=171 (i.e., if K is equal to the total number of features).
-* NOTE ABOUT TIME PERFORMANCE
+* The Fuzzy Clustering technique is faster than the Collaborative Filtering one: 
+we can notice a basically constant improvement of about 4 seconds, 
+which is independent from the number of neighbors considered. 
+This difference is due to the fact that the system based on clustering performs kNN 
+using a smaller matrix, while the collaborative filtering one works on the matrix Users X Animes, 
+which is way bigger.
 
 
 **Conclusions** <br/>
@@ -140,8 +145,8 @@ To measure the similarity between users we used the cosine similarity between th
 
 From the graph attached above, we can see that, even if he recommender 
 system based on fuzzy clustering is a bit worse than the collaborative 
-filtering one, it is way faster (about SIX TIMES -ADD REAL VALUE), 
-and therefore it can be considered better than the other one.
+filtering one, it is way faster and therefore it can be considered 
+better than the other one.
 
 
 **Contacts, References and Links**
