@@ -110,6 +110,10 @@ we performed training on the number of neighbors used to compute
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/Clusters_tuning_MAE.png" align="middle"/> <br/><br/>
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/Clusters_tuning_RMSE.png" align="middle"/> <br/><br/>
 
+*Collaborative Filtering vs Fuzzy Clustering - Average computation time*
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/time_comparison.png" align="middle"/> <br/><br/>
+
+
 The graphs reported above show us three important facts:
 * The Recommender System based on Collaborative Filtering is slightly more accurate
  in average than the one based on Fuzzy Clustering. 
@@ -128,6 +132,7 @@ we also considered very high values for K, even though they would not be practic
 we can notice that the more the clusters we use, the better the score we get. 
 However, we think the improvement we get moving from, for instance, 
 K=60 to K=171 (i.e., if K is equal to the total number of features).
+* NOTE ABOUT TIME PERFORMANCE
 
 
 **Conclusions** <br/>
@@ -139,6 +144,11 @@ filtering one, it is way faster (about SIX TIMES -ADD REAL VALUE),
 and therefore it can be considered better than the other one.
 
 
-**References** <br/>
-TODO
-
+**Contacts, References and Links**
+* Give a look to [MyAnimeList](https://myanimelist.net/)
+* If you have questions, you can find us at gaudenzi.1527361@studenti.uniroma1.it, 
+veterini.1536622@studenti.uniroma1.it, and rutigliano.1449848@studenti.uniroma1.it. 
+* You can also find us on Linkedin 
+[here](https://www.linkedin.com/in/sara-veterini-667684116/) 
+and [here](https://www.linkedin.com/in/roberto-gaudenzi-4b0422116).
+* [Link to the Data Mining class web page](http://aris.me/index.php/data-mining-2016).<br/>
