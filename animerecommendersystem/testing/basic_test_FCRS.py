@@ -16,7 +16,10 @@ if __name__ == '__main__':
                                               users_clusters_dict, users_clusters_indices)
 
     user = 'Lebbing'
+    start = timeit.default_timer()
     recommendations = fcrs.get_recommendations(user)
+    req_time = timeit.default_timer() - start
     print "------------------------------------------------------------"
     print "Recommendations for user "+user+" are:"
     print recommendations
+    print "Required time = " + str(req_time)
