@@ -45,9 +45,10 @@ about the interests of a user by collecting preferences or taste information
 So a first naive approach is based on applying k-nearest neighbor 
 on user-item matrix, and then using the ratings from those neighbors 
 to calculate predictions for the active user, with the following formula: <br/> 
-
-<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/d2a94dc0a962bd32eda90d13806cc446f6dcc46c" align="middle"/> <br/><br/>
-<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ca896baefcaade46d3d20adb0ac63287ff9353e7"  align="middle"/> <br/><br/>
+<p align="center">
+  <img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/d2a94dc0a962bd32eda90d13806cc446f6dcc46c" align="middle"/> <br/><br/>
+  <img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ca896baefcaade46d3d20adb0ac63287ff9353e7"  align="middle"/> <br/><br/>
+</p>
 
 The recommendations are the animes with the highest predictions. <br/>
 However, this approach becomes really slow, especially if the system 
@@ -89,11 +90,15 @@ user-cluster matrix, and get prediction using the same approach.
 **Evaluation Metrics and Tuning Step** <br/>
 To evaluate the quality of our systems, we used:
 * the root-mean-square error (RMSE) measure, defined as: <br/>
-<img src="http://statweb.stanford.edu/~susan/courses/s60/split/img29.png" align="middle"/> <br/><br/>
+<p align="center">
+  <img src="http://statweb.stanford.edu/~susan/courses/s60/split/img29.png" align="middle"/> <br/><br/>
+</p>
 where n is the number of recommendations, y^<sub>t</sub> is the predicted rate, and y<sub>t</sub> is the real rate the user gave to the anime t.
 
 * the mean absolute error (MAE) measure, defined as: <br/>
+<p align="center">
 <img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/a26cd07ce591210dc494cec532c4dacfdf9153b9" align="middle"/> <br/><br/>
+</p>
 where f<sub>i</sub> is the predicted rate for anime i, and y<sub>i</sub> is the real rate the user gave to it.
 
 These two measures were used during the training phase to decide 
@@ -107,22 +112,27 @@ we performed training on the number of neighbors used to compute
 *Collaborative Filtering vs Fuzzy Clustering - Tuning number of neighbors*<br/>
 The following tests have been made using a fixed number of clusters (60)
 for the recommender system based on fuzzy clustering.<br/>
+<p align="center">
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/cf_fc_MAE.png" align="middle"/> <br/><br/>
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/cf_fc_RMSE.png" align="middle"/> <br/><br/>
+</p>
 
 *Fuzzy Clustering - Tuning number of clusters*<br/>
 The following tests have been made using a fixed number of neighbors (12)
 for the recommender system based on fuzzy clustering.<br/>
+<p align="center">
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/Clusters_tuning_MAE.png" align="middle"/> <br/><br/>
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/Clusters_tuning_RMSE.png" align="middle"/> <br/><br/>
+</p>
 
 *Collaborative Filtering vs Fuzzy Clustering - Average computation time*
 The following tests have been made using a machine with the following characteristics:
 * Operating System: Ubuntu 16.04 64 bit
 * CPU: Intel i5-4570
 * RAM: 8 GB
-
+<p align="center">
 <img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/time_comparison.png" align="middle"/> <br/><br/>
+</p>
 
 
 
