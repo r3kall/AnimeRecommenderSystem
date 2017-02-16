@@ -126,7 +126,7 @@ The following tests have been made using a machine with the following characteri
 
 
 
-The graphs reported above show us three important facts:
+The graphs reported above show us four important facts:
 * The Recommender System based on Collaborative Filtering is slightly more accurate
  in average than the one based on Fuzzy Clustering. 
 * The quality of the recommendations improves with a high number of neighbors K. 
