@@ -15,6 +15,13 @@ the first uses a Collaborative Filtering technique, the second is an hybrid
 of Collaborative Filtering and Content Based techniques that perform dimensional
  reduction through the Fuzzy Clustering algorithm (Fuzzy C-Means).
  We analyse the performance of both in terms of accuracy and time.
+ 
+ **Instructions**<br/>
+ We use the Anaconda2 platform. You can download it at: https://www.continuum.io/downloads <br/><br/>
+ If you want to try our system, download it and run:
+ ```sh
+ python -m animerecommendersystem.testing.basic_test_FCRS
+ ```
 
 **Datasets** <br/>
 *Anime* <br/>
@@ -87,6 +94,14 @@ to a cluster.
 * We perform, like in the CF system, K-Nearest Neighbors on the 
 user-cluster matrix, and get prediction using the same approach.
 
+*Nice Explanatory Illustration*
+```
+(MxF) --> Fuzzy Clustering --> (MxC) -->|
+                                        |--> (NxC) --> K Nearest Neighbors --> Recommendations                             
+                               (NxM) -->|
+                               
+where N=number of users, M=number of anime, F=number of anime features, C=number of clusters, K=number of neighbors
+```
 **Evaluation Metrics and Tuning Step** <br/>
 To evaluate the quality of our systems, we used:
 * the root-mean-square error (RMSE) measure, defined as: <br/>
