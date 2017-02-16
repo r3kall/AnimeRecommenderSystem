@@ -63,6 +63,11 @@ if __name__ == '__main__':
     fcrs = FuzzyClusteringRS.FuzzyCluseringRS(users_anime_lists, users_clusters_matrix,
                                               users_clusters_dict, users_clusters_indices)
 
+    e1 = np.random.randint(len(users_clusters_indices.keys()))
+    e2 = np.random.randint(len(users_clusters_indices.keys()))
+
+    print "[Username examples:  %s , %s]" % (users_clusters_indices[e1],
+                                             users_clusters_indices[e2])
     user = raw_input("Insert username:  ")
     start = timeit.default_timer()
     recommendations = fcrs.get_recommendations(user)
@@ -70,6 +75,5 @@ if __name__ == '__main__':
 
     print "------------------------------------------------------------"
     print "Required time to get recommendations = " + str(req_time)
-    print recommendations
 
     print_html_page(user, recommendations, utility)
