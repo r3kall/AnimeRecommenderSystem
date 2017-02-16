@@ -1,4 +1,5 @@
 # Anime Recommender System
+<img src="https://github.com/r3kall/AnimeRecommenderSystem/blob/master/readme_images/sapienza_logo.png" align="middle"/>
 **Sapienza - Università di Roma** <br/>
 *Master of Science in Engineering in Computer Science* <br/>
 *Data Mining, a.y. 2016-17* <br/>
