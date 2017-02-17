@@ -4,8 +4,8 @@ from animerecommendersystem.utils.utils_functions import sort_list
 from collections import defaultdict
 
 
-STD_NUM_RECOMM = 16
-STD_NUM_NEIGHBORS = 50
+STD_NUM_RECOMM = 20
+STD_NUM_NEIGHBORS = 7
 
 # Codes used for specifying the way we take recommendations from neighbors
 FIRST_USER_FIRST = 0
